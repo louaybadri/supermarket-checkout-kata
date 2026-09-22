@@ -1,6 +1,7 @@
 package com.louaybadri.checkout.pricing;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,13 @@ class CheckoutTest {
 		Money scannedTheOther = checkout.total(cartOf("BANANA", "APPLE", "APPLE"));
 
 		assertThat(scannedOneWay).isEqualTo(scannedTheOther).isEqualTo(Money.ofCents(80));
+	}
+
+	@Test
+	void refusesAnItemTheSupermarketDoesNotSell() {
+		assertThatThrownBy(() -> checkout.total(cartOf("UNICORN")))
+			.isInstanceOf(UnknownProductException.class)
+			.hasMessageContaining("UNICORN");
 	}
 
 	@Test

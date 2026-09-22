@@ -11,6 +11,16 @@ import java.util.Map;
 public record Cart(List<Item> items) {
 
 	public record Item(String sku, int quantity) {
+
+		public Item {
+			if (sku == null || sku.isBlank()) {
+				throw new IllegalArgumentException("An item needs a sku");
+			}
+			if (quantity <= 0) {
+				throw new IllegalArgumentException(
+						"An item needs a quantity of at least 1, but was " + quantity);
+			}
+		}
 	}
 
 	public Cart {

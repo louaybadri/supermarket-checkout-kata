@@ -23,7 +23,6 @@ public class Checkout {
 	}
 
 	private Product productFor(String sku) {
-		return catalog.findBySku(sku)
-			.orElseThrow(() -> new IllegalArgumentException("Unknown sku: " + sku));
+		return catalog.findBySku(sku).orElseThrow(() -> new UnknownProductException(sku));
 	}
 }
