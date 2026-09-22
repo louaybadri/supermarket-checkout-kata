@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -65,8 +62,6 @@ class CheckoutTest {
 	}
 
 	private static Catalog catalogOf(Product... products) {
-		Map<String, Product> bySku = List.of(products).stream()
-			.collect(Collectors.toMap(Product::sku, product -> product));
-		return sku -> Optional.ofNullable(bySku.get(sku));
+		return new StubCatalog().selling(products);
 	}
 }
