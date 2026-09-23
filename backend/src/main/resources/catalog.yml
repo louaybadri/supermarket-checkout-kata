@@ -1,0 +1,38 @@
+# What the shop sells, and the offer sets it can run.
+#
+# The products stay the same; the deals change from week to week. Pick which week is live with
+# catalog.active-preset, either here or on the command line:
+#
+#   ./gradlew bootRun --args='--catalog.active-preset=bundle-week'
+
+catalog:
+  active-preset: classic
+
+  products:
+    - { sku: APPLE,  name: Apple,  unit-price-cents: 30 }
+    - { sku: BANANA, name: Banana, unit-price-cents: 20 }
+    - { sku: BREAD,  name: Bread,  unit-price-cents: 110 }
+    - { sku: MILK,   name: Milk,   unit-price-cents: 90 }
+    - { sku: CHEESE, name: Cheese, unit-price-cents: 250 }
+
+  presets:
+    # The example from the exercise.
+    classic:
+      - name: "2 apples for 0.45"
+        price-cents: 45
+        items: { APPLE: 2 }
+
+    # Offers that span products, plus one that competes with them for the same apples.
+    bundle-week:
+      - name: "Apple & banana for 0.40"
+        price-cents: 40
+        items: { APPLE: 1, BANANA: 1 }
+      - name: "3 apples for 0.60"
+        price-cents: 60
+        items: { APPLE: 3 }
+      - name: "Bread & milk for 1.80"
+        price-cents: 180
+        items: { BREAD: 1, MILK: 1 }
+
+    # No deals at all, to see the plain shelf prices.
+    none: []

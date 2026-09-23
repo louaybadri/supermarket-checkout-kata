@@ -28,6 +28,16 @@ cd backend && ./gradlew test
 cd frontend && npm test
 ```
 
+The shop and its deals live in `backend/src/main/resources/catalog.yml`. The products stay put,
+the offers come in named sets, and you pick which week is running without touching any code:
+
+```bash
+cd backend && ./gradlew bootRun --args='--catalog.active-preset=bundle-week'
+```
+
+`classic` is the exercise's own example, `bundle-week` has offers that span products and compete
+for the same apples, and `none` turns every deal off.
+
 ## Assumptions
 
 1. Prices are in euros and handled as whole cents, never as floating point numbers.
@@ -62,9 +72,12 @@ cd frontend && npm test
 - **Checkout is stateless.** The frontend holds the cart and sends it to `POST /api/checkout`,
   which returns a receipt with lines, discounts and the total. There was no requirement to keep
   carts across sessions.
-- **Products and offers live in an in-memory H2 database**, seeded at startup, behind a
-  `Catalog` interface. It needs no setup from the reviewer, and moving to PostgreSQL means
-  changing configuration and migrations, not the pricing code.
+- **Products and offers live in an in-memory H2 database**, seeded at startup from
+  `catalog.yml`, behind a `Catalog` interface. It needs no setup from the reviewer, and moving to
+  PostgreSQL means changing configuration and migrations, not the pricing code.
+- **Three tables.** `product` is the shelf, `offer` is the deal and its price, and `offer_item`
+  says which products each deal needs. An offer can name any number of products, so its items
+  cannot be columns on the offer row.
 
 ## How I worked
 
