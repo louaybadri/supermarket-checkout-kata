@@ -28,19 +28,23 @@ TypeScript. No UI component library. No Swagger. No Lombok.
 
 - `Money` — value type wrapping integer **cents**. No floating point anywhere in pricing.
 - `Product` — `sku`, `name`, `unitPrice`
-- `Offer` — `sku`, `quantity`, `bundlePrice`. At most one active offer per product.
+- `Offer` — `name`, `requiredItems` (sku to quantity), `price`. May combine different products.
 - `Cart` — items of `sku` + `quantity`
-- `Receipt` — lines + `total` + `totalSavings`
-- `ReceiptLine` — `sku`, `name`, `quantity`, `unitPrice`, `lineTotal`, `appliedOffer` (nullable),
-  `savings`
+- `BestPrice` — picks the combination of offers with the lowest total. Package-private.
+- `Receipt` — `lines` + `discounts` + `total` + `totalSavings()`
+- `ReceiptLine` — `sku`, `name`, `quantity`, `unitPrice`, `lineTotal`
+- `AppliedOffer` — `name`, `times`, `saving`. An offer across products cannot hang off one line,
+  so discounts are their own section, the way a till prints them. Savings are computed, not stored.
 
 ## Pricing rules
 
 1. Price the whole cart. Order of items is irrelevant.
-2. Per product: apply the offer as many times as it fits, charge the remainder at unit price.
-3. Never apply an offer that costs more than the same items at unit price.
-4. Each item counts towards at most one offer.
-5. Reject an unknown sku or a quantity ≤ 0.
+2. Apply the combination of offers that gives the customer the lowest total. Greedy is wrong once
+   offers compete for the same items.
+3. Whatever no offer covers is charged at shelf price.
+4. Never apply an offer that costs more than the same items at shelf price, or exactly the same.
+5. Each item counts towards at most one offer.
+6. Reject an unknown sku or a quantity ≤ 0.
 
 ## Packages
 
@@ -64,6 +68,9 @@ TypeScript. No UI component library. No Swagger. No Lombok.
 - Offer plus leftovers (3 apples = 0.75; 5 apples = 1.20)
 - A product with no offer
 - An offer more expensive than unit price is not applied
+- A bundle across products (apple + banana)
+- Competing offers: "3 apples for 0.60" and "apple+banana for 0.30" with 3 apples and 3 bananas
+  costs 0.90, not the 1.20 a greedy pick would give
 - Unknown sku rejected; quantity 0 and negative rejected
 - Receipt reports the applied offer and the savings per line
 - `@WebMvcTest` for both endpoints, including the 400 cases
@@ -77,5 +84,5 @@ backend is the source of truth.
 
 ## Out of scope
 
-Several offers per product, offers spanning products, offer validity dates, authentication,
-persistence beyond H2, Swagger, CI.
+Offer validity dates, authentication, persistence beyond H2, Swagger, CI, and splitting the
+search into independent groups of products for very large carts.

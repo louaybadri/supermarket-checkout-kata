@@ -34,13 +34,14 @@ cd frontend && npm test
 2. The order in which items are added does not matter. The whole cart is priced at checkout.
 3. An offer such as "2 for 0.45€" applies as many times as it fits. Leftover items are charged
    at the normal price, so 3 apples cost 0.45€ + 0.30€ = 0.75€.
-4. Each product has at most one active offer. The offer is applied as many times as it fits and
-   the leftovers are charged at unit price, which gives the lowest price for that product.
-5. An offer that costs more than the same items at unit price is never applied.
+4. An offer may combine different products, for example an apple and a banana together. Haiilo
+   confirmed this on 23 September. A single-product deal is the same thing with one entry in the
+   set, so there is one kind of offer rather than two.
+5. Several offers may want the same items. The checkout picks the combination that gives the
+   customer the lowest total, not the first or the biggest-looking discount.
 6. Each item in the cart counts towards at most one offer. The same apple is never discounted twice.
-7. I asked Haiilo whether an offer can combine different products, for example an apple and a
-   banana. Until they answer, offers apply to a single product. The offer model is designed so
-   that a multi-product offer would be a new implementation rather than a redesign.
+7. An offer that costs more than the same items at unit price, or exactly the same, is never
+   applied.
 8. Unknown products, and quantities of zero or less, are rejected.
 9. "Weekly" offers are modelled as data, replaced by changing the catalog. Validity dates are
    not modelled; see "Not in scope".
@@ -52,6 +53,12 @@ cd frontend && npm test
 - **The pricing logic is plain Java**, with no framework code in it, so it can be read and
   tested on its own.
 - **Money is a value type over integer cents.** No `double` anywhere in pricing.
+- **One shape of offer:** a name, the set of items it needs, and the price for that set.
+- **The cheapest combination is found by searching**, not by applying offers greedily. With
+  "3 apples for 0.60" and "an apple and a banana for 0.30", a basket of 3 apples and 3 bananas
+  costs 1.20 greedily and 0.90 when the bundle is used three times. The search tries every
+  offer that fits plus the option of stopping, and remembers each basket it has already solved,
+  which keeps a supermarket-sized cart instant.
 - **Checkout is stateless.** The frontend holds the cart and sends it to `POST /api/checkout`,
   which returns a receipt with lines, discounts and the total. There was no requirement to keep
   carts across sessions.
@@ -70,11 +77,10 @@ cd frontend && npm test
 
 ## Not in scope yet
 
-- **Several offers on the same product.** Greedy is no longer optimal then, and it needs a small
-  dynamic-programming pass over the quantity:
-  `cheapest[n] = min(cheapest[n-1] + unitPrice, cheapest[n-k] + offerPrice)`.
-- **Offers combining several products.** A harder optimisation problem, which I would want the
-  real business rules for before designing.
+- **Very large carts where many offers overlap.** Choosing the cheapest set of overlapping
+  bundles is multi-dimensional knapsack, so the search is exponential in the number of products
+  that offers touch. Products linked by an offer could be solved as independent groups, which
+  keeps the exponent at the size of the largest group rather than the whole catalog.
 - **Offers valid only for a given period** (`validFrom` / `validUntil` with an injected `Clock`).
 - **A persistent database.** PostgreSQL would replace H2 behind the same `Catalog` interface.
 - Continuous integration.
