@@ -29,4 +29,12 @@ public record Offer(String sku, int quantity, Money bundlePrice) {
 	public int leftOverIn(int cartQuantity) {
 		return cartQuantity % quantity;
 	}
+
+	/**
+	 * Whether the deal is actually a deal. A miskeyed offer that costs the customer more than
+	 * the shelf price is ignored rather than charged.
+	 */
+	public boolean isWorthItFor(Product product) {
+		return bundlePrice.compareTo(product.unitPrice().times(quantity)) < 0;
+	}
 }

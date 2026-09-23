@@ -45,6 +45,24 @@ class CheckoutOffersTest {
 	}
 
 	@Test
+	void anOfferDearerThanTheShelfPriceIsIgnored() {
+		Product cheese = new Product("CHEESE", "Cheese", Money.ofCents(100));
+		Checkout misconfigured = new Checkout(new StubCatalog().selling(cheese)
+			.offering(new Offer("CHEESE", 2, Money.ofCents(250))));
+
+		assertThat(misconfigured.total(cartOf("CHEESE", "CHEESE"))).isEqualTo(Money.ofCents(200));
+	}
+
+	@Test
+	void anOfferThatSavesNothingIsIgnored() {
+		Product cheese = new Product("CHEESE", "Cheese", Money.ofCents(100));
+		Checkout pointless = new Checkout(new StubCatalog().selling(cheese)
+			.offering(new Offer("CHEESE", 2, Money.ofCents(200))));
+
+		assertThat(pointless.total(cartOf("CHEESE", "CHEESE"))).isEqualTo(Money.ofCents(200));
+	}
+
+	@Test
 	void theOfferAppliesWhateverTheOrderOfTheCart() {
 		assertThat(checkout.total(cartOf("APPLE", "BANANA", "APPLE")))
 			.isEqualTo(checkout.total(cartOf("BANANA", "APPLE", "APPLE")))

@@ -24,6 +24,7 @@ public class Checkout {
 	private Money priceOf(String sku, int quantity) {
 		Product product = productFor(sku);
 		return catalog.findOfferFor(sku)
+			.filter(offer -> offer.isWorthItFor(product))
 			.map(offer -> withOffer(offer, product, quantity))
 			.orElseGet(() -> product.unitPrice().times(quantity));
 	}
