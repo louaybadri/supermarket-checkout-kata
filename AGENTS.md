@@ -55,9 +55,12 @@ TypeScript. No UI component library. No Swagger. No Lombok.
 
 ## REST API
 
-- `GET /api/products` → products with their active offer
+- `GET /api/products` → what the shop sells
+- `GET /api/offers` → this week's offers with the items each one needs. Separate from products,
+  because an offer can span several of them
 - `POST /api/checkout` → body `{ "items": [{ "sku": "APPLE", "quantity": 3 }] }` → receipt
-- Validation errors → 400 with `ProblemDetail`
+- Every amount in the JSON is in whole cents, named `...Cents`. The frontend formats them
+- Validation errors and unknown products → 400 with `ProblemDetail`
 
 ## Tests to cover
 

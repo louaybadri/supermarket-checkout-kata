@@ -31,6 +31,11 @@ final class StubCatalog implements Catalog {
 	}
 
 	@Override
+	public List<Product> products() {
+		return List.copyOf(products.values());
+	}
+
+	@Override
 	public List<Offer> activeOffers() {
 		return List.copyOf(offers);
 	}

@@ -12,6 +12,11 @@ public interface Catalog {
 	Optional<Product> findBySku(String sku);
 
 	/**
+	 * Everything on the shelf.
+	 */
+	List<Product> products();
+
+	/**
 	 * Every offer running this week. An offer can span several products, so it cannot be filed
 	 * under a single sku.
 	 */

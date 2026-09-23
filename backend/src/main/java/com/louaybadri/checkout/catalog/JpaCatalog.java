@@ -33,6 +33,11 @@ class JpaCatalog implements Catalog {
 	}
 
 	@Override
+	public List<Product> products() {
+		return this.products.findAll().stream().map(ProductEntity::toProduct).toList();
+	}
+
+	@Override
 	public List<Offer> activeOffers() {
 		return offers.findAll().stream().map(OfferEntity::toOffer).toList();
 	}
