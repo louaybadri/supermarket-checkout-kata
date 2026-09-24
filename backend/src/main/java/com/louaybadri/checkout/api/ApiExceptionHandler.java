@@ -42,6 +42,15 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		return problem;
 	}
 
+	@ExceptionHandler(DuplicateLineException.class)
+	ProblemDetail onDuplicateLine(DuplicateLineException exception) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+				exception.getMessage());
+		problem.setTitle("Invalid cart");
+		problem.setProperty("sku", exception.sku());
+		return problem;
+	}
+
 	/**
 	 * A request that fails {@code @Valid}. Spring's own answer says only "Invalid request content",
 	 * so the detail is replaced with each broken field and what is wrong with it, for example

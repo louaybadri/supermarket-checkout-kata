@@ -69,7 +69,7 @@ curl -s -X POST localhost:8080/api/checkout -H 'Content-Type: application/json' 
 ```
 
 A cart the shop cannot price comes back as a 400 `ProblemDetail` saying which part is wrong: an
-unknown product, or a line with a quantity outside 1 to 99.
+unknown product, a quantity outside 1 to 99, or the same product on two lines.
 
 ```json
 { "status": 400, "title": "Unknown product",
@@ -116,8 +116,9 @@ which is why the pricing tests need no database and no Spring context and run in
 6. Each item in the cart counts towards at most one offer. The same apple is never discounted twice.
 7. An offer that costs more than the same items at unit price, or exactly the same, is never
    applied.
-8. Unknown products are rejected, and so is a line asking for fewer than 1 or more than 99 of a
-   product. Nobody puts a hundred of one thing through a till.
+8. Unknown products are rejected, and so is asking for fewer than 1 or more than 99 of a product.
+   Nobody puts a hundred of one thing through a till. A cart lists each product once, with how
+   many of it are wanted, so a product on two lines is rejected rather than added up.
 9. "Weekly" offers are modelled as data, replaced by changing the catalog. Validity dates are
    not modelled; see "Not in scope".
 
@@ -166,7 +167,7 @@ which is why the pricing tests need no database and no Spring context and run in
   the commit message, so it is easy to skip.
 - I used Claude Code as a pair programmer, working against the spec in `AGENTS.md`, and I
   reviewed every commit before it went in.
-- Before sending, I reviewed the whole thing. `docs/review.md` lists ten findings, each with the
+- Before sending, I reviewed the whole thing. `docs/review.md` lists eleven findings, each with the
   evidence that showed it and the fix it got, and every fix is its own commit tagged
   "(review #N)", so the history reads build, review, fix.
 
@@ -177,8 +178,6 @@ which is why the pricing tests need no database and no Spring context and run in
   exponential in the number of offers, not in the size of the cart. Offers that share no product
   could be solved as independent groups, adding their costs instead of multiplying them, with
   solved baskets remembered inside each group.
-- **A limit on the whole cart.** The 99 is per line, so the same product sent on several lines
-  still adds up past it. The frontend never does that, and the search copes, but the API allows it.
 - **Offers valid only for a given period** (`validFrom` / `validUntil` with an injected `Clock`).
 - **A persistent database.** PostgreSQL would replace H2 behind the same `Catalog` interface.
 - Continuous integration.

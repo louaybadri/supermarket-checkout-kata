@@ -1,6 +1,8 @@
 package com.louaybadri.checkout.api;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -29,7 +31,20 @@ record CheckoutRequest(@NotNull List<@NotNull @Valid ItemRequest> items) {
 	record ItemRequest(@NotBlank String sku, @Min(1) @Max(MAX_QUANTITY) int quantity) {
 	}
 
+	/**
+	 * The cart for pricing. Each product must come on one line only, with the quantity wanted;
+	 * {@link #MAX_QUANTITY} is then a limit per product, not just per line.
+	 *
+	 * @throws DuplicateLineException naming the first product that appears twice
+	 */
 	Cart toCart() {
+		Set<String> seen = new HashSet<>();
+		for (ItemRequest item : items) {
+			// add() is false when the sku was already there.
+			if (!seen.add(item.sku())) {
+				throw new DuplicateLineException(item.sku());
+			}
+		}
 		return new Cart(items.stream().map(item -> new Cart.Item(item.sku(), item.quantity())).toList());
 	}
 }

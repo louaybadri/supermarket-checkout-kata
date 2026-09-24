@@ -95,6 +95,18 @@ class CheckoutApiTest {
 	}
 
 	@Test
+	void rejectsTheSameProductOnTwoLines() throws Exception {
+		// Two lines of 99 would otherwise add up to 198 apples, past the limit a line enforces.
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"items":[{"sku":"APPLE","quantity":99},{"sku":"BANANA","quantity":1},{"sku":"APPLE","quantity":99}]}"""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("APPLE appears on more than one line"))
+			.andExpect(jsonPath("$.sku").value("APPLE"));
+	}
+
+	@Test
 	void rejectsAnItemWithoutASku() throws Exception {
 		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
 			.content("""

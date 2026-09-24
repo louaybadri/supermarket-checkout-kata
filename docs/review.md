@@ -18,6 +18,7 @@ own commit, with its test, and the commit message names the item, for example
 | 8 | UI | A reply for an old cart can overwrite the receipt | fixed |
 | 9 | UI | Money is formatted two different ways | fixed |
 | 10 | UI | An unreachable backend looks like an empty or broken shop | fixed |
+| 11 | API | The same product on several lines gets past the 99 limit | fixed |
 
 The evidence below was gathered with the `bundle-week` preset:
 
@@ -236,7 +237,7 @@ checkout whose catalog holds an offer without a name is not answered as a bad ca
 
 The cap is per line. The same product sent on two lines of 99 is still accepted as 198, because
 `Cart` adds the lines together after validation. The frontend never sends a product twice, and 198
-is nowhere near an overflow, so this is left as it is.
+is nowhere near an overflow, so this was left for later; #11 closes it.
 
 - [x] Fixed in: "Stop blaming the customer for our own bugs (review #5)"
 
@@ -422,3 +423,30 @@ shop is back, unless the cart changed in between.
 
 - [x] Shelf and offers fixed in: "Keep trying when the shop cannot be reached (review #10)"
 - [x] Checkout fixed in: "Price the cart once the shop is back (review #10)"
+
+---
+
+## 11. The same product on several lines gets past the 99 limit
+
+Left open by #5, closed before sending.
+
+**Problem.** The limit is checked on each line, and the lines are added together afterwards, so
+a cart could ask for 99 apples twice. The frontend never does this, since its cart keeps one line
+per product, but the API allowed it.
+
+**Evidence.** `{"items":[{"sku":"APPLE","quantity":99},{"sku":"APPLE","quantity":99}]}` was
+priced as 198 apples, with a 200.
+
+**Fix.** The API takes one line per product. `CheckoutRequest.toCart()` turns away a product that
+appears twice, with a 400 naming it:
+
+```json
+{ "status": 400, "title": "Invalid cart", "detail": "APPLE appears on more than one line", "sku": "APPLE" }
+```
+
+The 99 is now a limit per product. The domain's `Cart` still accepts repeats, the way a till scans
+one apple after another; the rule belongs to the API's contract, not to pricing.
+
+**Test.** `@WebMvcTest`: two lines of apples with a banana between them is a 400 naming `APPLE`.
+
+- [x] Fixed in: "Take each product on one line only (review #11)"
