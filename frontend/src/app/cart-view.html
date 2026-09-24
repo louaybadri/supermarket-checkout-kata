@@ -1,0 +1,34 @@
+<section class="cart">
+  <h2>Your cart ({{ cart.itemCount() }})</h2>
+
+  @if (cart.isEmpty()) {
+    <p>Nothing in it yet.</p>
+  } @else {
+    @for (line of cart.lines(); track line.product.sku) {
+      <article class="line">
+        <span class="name">{{ line.product.name }}</span>
+        <span class="price">{{ line.product.unitPriceCents / 100 | currency: 'EUR' }}</span>
+
+        <button
+          type="button"
+          (click)="cart.removeOne(line.product.sku)"
+          [attr.aria-label]="'One less ' + line.product.name"
+        >
+          −
+        </button>
+        <span class="quantity">{{ line.quantity }}</span>
+        <button
+          type="button"
+          (click)="cart.add(line.product)"
+          [attr.aria-label]="'One more ' + line.product.name"
+        >
+          +
+        </button>
+
+        <button type="button" class="remove" (click)="cart.removeLine(line.product.sku)">Remove</button>
+      </article>
+    }
+
+    <button type="button" class="clear" (click)="cart.clear()">Empty the cart</button>
+  }
+</section>

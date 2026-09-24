@@ -1,0 +1,18 @@
+<section class="shelf">
+  <h2>On the shelf</h2>
+
+  @for (product of products(); track product.sku) {
+    <article class="product">
+      <span class="name">{{ product.name }}</span>
+      <span class="price">{{ product.unitPriceCents / 100 | currency: 'EUR' }}</span>
+
+      @for (offer of offersFor()[product.sku] ?? []; track offer.name) {
+        <span class="offer">{{ offer.name }}</span>
+      }
+
+      <button type="button" (click)="cart.add(product)">Add</button>
+    </article>
+  } @empty {
+    <p>The shop is empty.</p>
+  }
+</section>

@@ -1,0 +1,20 @@
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+}
+
+.name {
+  min-width: 6rem;
+  font-weight: 600;
+}
+
+.quantity {
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.remove {
+  margin-left: 0.5rem;
+}

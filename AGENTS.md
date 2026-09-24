@@ -83,7 +83,8 @@ TypeScript. No UI component library. No Swagger. No Lombok.
 
 Standalone components, signals for cart state, a typed `HttpClient` service, dev proxy to
 `:8080`. Three views: product list, cart, receipt. **No pricing logic in the frontend** — the
-backend is the source of truth.
+backend is the source of truth. Every component keeps its template and styles in their own
+`.html` and `.css` files, never inline.
 
 ## Out of scope
 
