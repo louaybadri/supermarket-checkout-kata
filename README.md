@@ -40,6 +40,58 @@ cd backend && ./gradlew bootRun --args='--catalog.active-preset=bundle-week'
 `classic` is the exercise's own example, `bundle-week` has offers that span products and compete
 for the same apples, and `none` turns every deal off.
 
+## The API
+
+```
+GET  /api/products    what the shop sells
+GET  /api/offers      the deals running this week, with the items each one needs
+POST /api/checkout    a cart in, a receipt out
+```
+
+Every amount is in whole cents, named `...Cents`, so no price has to survive a floating point
+number on the way to the browser.
+
+```bash
+curl -s -X POST localhost:8080/api/checkout -H 'Content-Type: application/json' \
+  -d '{"items":[{"sku":"APPLE","quantity":3}]}'
+```
+```json
+{
+  "lines": [
+    { "sku": "APPLE", "name": "Apple", "quantity": 3, "unitPriceCents": 30, "lineTotalCents": 90 }
+  ],
+  "discounts": [{ "name": "2 apples for 0.45", "times": 1, "savingCents": 15 }],
+  "shelfTotalCents": 90,
+  "totalSavingsCents": 15,
+  "totalCents": 75
+}
+```
+
+An unknown product, or a quantity below one, comes back as a 400 saying which part is wrong:
+
+```json
+{ "status": 400, "title": "Unknown product",
+  "detail": "The shop does not sell 'UNICORN'", "sku": "UNICORN" }
+```
+
+## How it is laid out
+
+```
+backend/src/main/java/com/louaybadri/checkout/
+  pricing/    the rules, plain Java with no Spring or JPA in it
+              Money, Product, Offer, Cart, Catalog, Checkout, BestPrice, Receipt
+  catalog/    the same catalog backed by H2, seeded from catalog.yml
+  api/        the three endpoints, their DTOs, and the 400 handler
+
+frontend/src/app/
+  catalog/    the shelf: the API service and the product list
+  cart/       the cart as a signal, and its view
+  receipt/    the checkout call and the printed bill
+```
+
+`pricing` depends on nothing. `catalog` and `api` depend on `pricing`, never the other way round,
+which is why the pricing tests need no database and no Spring context and run in milliseconds.
+
 ## Assumptions
 
 1. Prices are in euros and handled as whole cents, never as floating point numbers.
@@ -84,9 +136,12 @@ for the same apples, and `none` turns every deal off.
 ## How I worked
 
 - I agreed scope and assumptions before writing code. This README is the first commit.
+- I asked whether an offer can combine different products rather than guessing. The answer came
+  on 23 September, and the commit that day reshapes `Offer` around it — the history shows the
+  requirement arriving and the model changing to meet it.
 - The pricing logic is written test-first, in small commits that each build and pass their tests.
 - Generated code (Spring Initializr, Angular CLI) sits in its own commits, with the command in
-  the commit message.
+  the commit message, so it is easy to skip.
 - I used Claude Code as a pair programmer, working against the spec in `AGENTS.md`, and I
   reviewed every commit before it went in.
 
