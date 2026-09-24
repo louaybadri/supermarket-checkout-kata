@@ -1,0 +1,16 @@
+@if (!connection.reachable()) {
+  <p class="banner down" role="alert">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v6M12 16.5v.01" />
+    </svg>
+    Can't reach the shop. Trying again…
+  </p>
+} @else if (connection.backOnline()) {
+  <p class="banner back" role="status">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+    Back online
+  </p>
+}

@@ -1,0 +1,19 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  margin: 0;
+  padding: var(--space-s) var(--space-xl);
+  font-weight: var(--weight-head);
+}
+
+.down {
+  background: var(--red-100);
+  color: var(--red-700);
+}
+
+.back {
+  background: var(--green-100);
+  color: var(--green-700);
+}

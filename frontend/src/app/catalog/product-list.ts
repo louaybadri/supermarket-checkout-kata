@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Cart } from '../cart/cart';
+import { ShopConnection } from '../connection/shop-connection';
 import { Catalog, Offer, Product } from './catalog';
 
 /** The shelf: what is for sale, and which deals mention each product. */
@@ -17,9 +18,21 @@ export class ProductList {
 
   protected readonly cart = inject(Cart);
 
-  readonly products = toSignal(this.catalog.products(), { initialValue: [] as Product[] });
+  private readonly connection = inject(ShopConnection);
 
-  private readonly offers = toSignal(this.catalog.offers(), { initialValue: [] as Offer[] });
+  /**
+   * What the shop sells, or undefined until the shop has answered. Undefined is what lets the
+   * page tell "still loading" apart from "the shop sells nothing". While the shop cannot be
+   * reached, the request keeps being sent again instead of failing.
+   */
+  readonly products = toSignal<Product[]>(
+    this.catalog.products().pipe(this.connection.keepTrying()),
+  );
+
+  /** This week's offers. None until they arrive; the shelf is usable without them. */
+  private readonly offers = toSignal(this.catalog.offers().pipe(this.connection.keepTrying()), {
+    initialValue: [] as Offer[],
+  });
 
   /** Offers grouped by the products they mention, so each one can be shown next to its shelf line. */
   readonly offersFor = computed(() => {

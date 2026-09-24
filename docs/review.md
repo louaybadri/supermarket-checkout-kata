@@ -17,6 +17,7 @@ own commit, with its test, and the commit message names the item, for example
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | fixed |
 | 8 | UI | A reply for an old cart can overwrite the receipt | fixed |
 | 9 | UI | Money is formatted two different ways | fixed |
+| 10 | UI | An unreachable backend looks like an empty or broken shop | open |
 
 The evidence below was gathered with the `bundle-week` preset:
 
@@ -373,3 +374,51 @@ protected euros(cents: number): string {
 on the receipt.
 
 - [x] Fixed in: "Format every price the same way (review #9)"
+
+---
+
+## 10. An unreachable backend looks like an empty or broken shop
+
+Found after the first nine, while running the frontend without the backend.
+
+**Problem.** The shelf reads its products and offers once, with no error handling:
+
+```ts
+readonly products = toSignal(this.catalog.products(), { initialValue: [] as Product[] });
+```
+
+When the request fails, `toSignal` rethrows the error when the signal is read, so the shelf
+breaks instead of saying anything. Checkout says only "The checkout could not price this cart."
+Nothing tells the shopper that the shop cannot be reached, or that it will come back.
+
+**Evidence.** With the backend stopped, the dev proxy answers every `/api` call with a **502**.
+The shelf stays blank, and the only trace is in the browser console and the dev server's log.
+
+**Fix.** A small `ShopConnection` service holds whether the shop is reachable, and gives the
+requests an RxJS operator that keeps trying:
+
+```ts
+retry({
+  delay: (error) => {
+    if (!unreachable(error)) return throwError(() => error);   // a 400 or our own 500: not retried
+    this.markUnreachable();                                     // the banner appears
+    return timer(3000);                                         // then the request is sent again
+  },
+}),
+tap(() => this.markReachable()),                                // "Back online", briefly
+```
+
+Only "no answer at all" counts as unreachable: status 0, 502, 503 and 504. A 500 is the shop
+answering that something broke on its side (#5), and retrying it would only hide the bug. The
+shelf, the offers and checkout all use the operator, and a banner at the top of the page reads
+from the service. A request is only sent when the shopper needs one, so the app notices the
+shop going down on its next load or checkout, not in the background. Watching it continuously
+would need polling, which is left out on purpose.
+
+**Test.** With fake timers: a request that fails with 502 shows the banner and is sent again 3
+seconds later; when it succeeds the banner turns to "Back online" and the shelf fills in. A 400
+and a 500 are not retried. A checkout pressed while the shop is down prints its bill once the
+shop is back, unless the cart changed in between.
+
+- [x] Shelf and offers fixed in: "Keep trying when the shop cannot be reached (review #10)"
+- [ ] Checkout fixed in: _commit_

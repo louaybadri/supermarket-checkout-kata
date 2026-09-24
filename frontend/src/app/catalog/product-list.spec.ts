@@ -78,6 +78,25 @@ describe('ProductList', () => {
     expect(add.disabled).toBe(true);
   });
 
+  it('says it is still loading, not that the shop is empty, while the shop cannot be reached', () => {
+    vi.useFakeTimers();
+    const shopDown = { status: 502, statusText: 'Bad Gateway' };
+    http.expectOne('/api/products').flush(null, shopDown);
+    http.expectOne('/api/offers').flush(null, shopDown);
+    fixture.detectChanges();
+
+    const page = fixture.nativeElement as HTMLElement;
+    expect(page.textContent).toContain('Loading the shelf…');
+    expect(page.textContent).not.toContain('The shop is empty.');
+
+    // Three seconds later both are asked for again, and this time the shop answers.
+    vi.advanceTimersByTime(3000);
+    answerWith([{ sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 }], []);
+
+    expect(page.querySelector('.name')?.textContent).toContain('Apple');
+    vi.useRealTimers();
+  });
+
   it('says so when the shop is empty', () => {
     answerWith([], []);
 
