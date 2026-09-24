@@ -24,6 +24,11 @@ import com.louaybadri.checkout.pricing.UnknownProductException;
  * <p>Extending {@link ResponseEntityExceptionHandler} makes every error Spring MVC raises itself,
  * such as a body that is not JSON or a number sent as text, come back as a {@link ProblemDetail}
  * too, instead of Spring's default error page.
+ *
+ * <p>There is deliberately no handler for {@link IllegalArgumentException} in general. The pricing
+ * code throws it for its own broken state too, such as an offer without a name or money going
+ * negative, and that is a fault on the shop's side: it stays a 500 rather than telling the
+ * customer their cart is wrong. Bad input is caught earlier, by {@code @Valid} on the request.
  */
 @RestControllerAdvice
 class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -34,14 +39,6 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				"The shop does not sell '" + exception.sku() + "'");
 		problem.setTitle("Unknown product");
 		problem.setProperty("sku", exception.sku());
-		return problem;
-	}
-
-	@ExceptionHandler(IllegalArgumentException.class)
-	ProblemDetail onInvalidCart(IllegalArgumentException exception) {
-		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-				exception.getMessage());
-		problem.setTitle("Invalid cart");
 		return problem;
 	}
 

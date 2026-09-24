@@ -3,6 +3,7 @@ package com.louaybadri.checkout.api;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +19,14 @@ import com.louaybadri.checkout.pricing.Cart;
  */
 record CheckoutRequest(@NotNull List<@NotNull @Valid ItemRequest> items) {
 
-	record ItemRequest(@NotBlank String sku, @Min(1) int quantity) {
+	/**
+	 * The most of one product a line may ask for. No shopper puts a hundred of one thing through
+	 * a till, and a cart that tries is turned away before any pricing work starts. This is the
+	 * only place the number is written.
+	 */
+	static final int MAX_QUANTITY = 99;
+
+	record ItemRequest(@NotBlank String sku, @Min(1) @Max(MAX_QUANTITY) int quantity) {
 	}
 
 	Cart toCart() {

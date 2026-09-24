@@ -12,7 +12,7 @@ own commit, with its test, and the commit message names the item, for example
 | 2 | Pricing | The search goes one call deeper for every offer it applies | fixed |
 | 3 | API | A `null` item crashes the server | fixed |
 | 4 | API | Validation errors are not `ProblemDetail` | fixed |
-| 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | open |
+| 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | fixed |
 | 6 | API + UI | The frontend does not know how many of a product may be bought | open |
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | open |
 | 8 | UI | A reply for an old cart can overwrite the receipt | open |
@@ -223,10 +223,21 @@ The wrong status, and a message that means nothing to the shopper.
    tries is rejected before pricing starts. The cap belongs to the API, not to `pricing`, which
    stays general and is why #2 is still worth fixing.
 
-**Test.** A quantity of 100 is a 400 whose detail mentions 99. A checkout that throws
-`IllegalArgumentException` inside is a 500.
+**Test.** A quantity of 100 is a 400 whose detail mentions 99, and 99 still goes through. A
+checkout whose catalog holds an offer without a name is not answered as a bad cart.
 
-- [ ] Fixed in: _commit_
+**After.** The overflowing cart from the evidence above is now turned away before pricing:
+
+```json
+{ "status": 400, "title": "Invalid cart",
+  "detail": "items[0].quantity: must be less than or equal to 99" }
+```
+
+The cap is per line. The same product sent on two lines of 99 is still accepted as 198, because
+`Cart` adds the lines together after validation. The frontend never sends a product twice, and 198
+is nowhere near an overflow, so this is left as it is.
+
+- [x] Fixed in: "Stop blaming the customer for our own bugs (review #5)"
 
 ---
 

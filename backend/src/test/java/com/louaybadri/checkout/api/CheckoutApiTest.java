@@ -76,6 +76,25 @@ class CheckoutApiTest {
 	}
 
 	@Test
+	void acceptsNinetyNineOfAProduct() throws Exception {
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"items":[{"sku":"BANANA","quantity":99}]}"""))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.totalCents").value(1980));
+	}
+
+	@Test
+	void rejectsMoreThanNinetyNineOfAProduct() throws Exception {
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"items":[{"sku":"APPLE","quantity":100}]}"""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("items[0].quantity: must be less than or equal to 99"));
+	}
+
+	@Test
 	void rejectsAnItemWithoutASku() throws Exception {
 		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
 			.content("""
