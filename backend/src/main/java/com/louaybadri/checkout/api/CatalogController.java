@@ -27,7 +27,8 @@ class CatalogController {
 	List<ProductResponse> products() {
 		return catalog.products()
 			.stream()
-			.map(product -> new ProductResponse(product.sku(), product.name(), product.unitPrice().cents()))
+			.map(product -> new ProductResponse(product.sku(), product.name(), product.unitPrice().cents(),
+					CheckoutRequest.MAX_QUANTITY))
 			.toList();
 	}
 
@@ -39,7 +40,12 @@ class CatalogController {
 			.toList();
 	}
 
-	record ProductResponse(String sku, String name, long unitPriceCents) {
+	/**
+	 * A product as the frontend sees it. {@code maxQuantity} is the same limit the checkout
+	 * enforces, sent along so the cart can stop at it without the frontend writing the number
+	 * down a second time.
+	 */
+	record ProductResponse(String sku, String name, long unitPriceCents, int maxQuantity) {
 	}
 
 	record OfferResponse(String name, Map<String, Integer> items, long priceCents) {

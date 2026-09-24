@@ -139,7 +139,8 @@ class CheckoutApiTest {
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$[0].sku").value("APPLE"))
 			.andExpect(jsonPath("$[0].name").value("Apple"))
-			.andExpect(jsonPath("$[0].unitPriceCents").value(30));
+			.andExpect(jsonPath("$[0].unitPriceCents").value(30))
+			.andExpect(jsonPath("$[0].maxQuantity").value(99));
 	}
 
 	@Test

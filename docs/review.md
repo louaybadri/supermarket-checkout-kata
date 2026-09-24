@@ -261,7 +261,7 @@ past `maxQuantity`, and the button is disabled when it is reached.
 
 Two commits, one per side:
 
-- [ ] Backend fixed in: _commit_
+- [x] Backend fixed in: "Tell the frontend how many of a product it may buy (review #6)"
 - [ ] Frontend fixed in: _commit_
 
 ---
