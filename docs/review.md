@@ -16,7 +16,7 @@ own commit, with its test, and the commit message names the item, for example
 | 6 | API + UI | The frontend does not know how many of a product may be bought | fixed |
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | fixed |
 | 8 | UI | A reply for an old cart can overwrite the receipt | fixed |
-| 9 | UI | Money is formatted two different ways | open |
+| 9 | UI | Money is formatted two different ways | fixed |
 
 The evidence below was gathered with the `bundle-week` preset:
 
@@ -369,4 +369,7 @@ protected euros(cents: number): string {
 
 **Test.** The receipt view test expects the pipe's format.
 
-- [ ] Fixed in: _commit_
+**After.** Every amount in the app now reads the same way, `€0.75`, on the shelf, in the cart and
+on the receipt.
+
+- [x] Fixed in: "Format every price the same way (review #9)"

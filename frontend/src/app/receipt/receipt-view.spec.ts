@@ -66,9 +66,11 @@ describe('ReceiptView', () => {
 
     expect(page().querySelector('.line')?.textContent).toContain('Apple');
     expect(page().querySelector('.discount')?.textContent).toContain('2 apples for 0.45');
-    expect(page().querySelector('.discount')?.textContent).toContain('0.15');
-    expect(page().querySelector('.total')?.textContent).toContain('0.75');
-    expect(page().querySelector('.saved')?.textContent).toContain('0.15');
+    // The same format as the prices on the shelf and in the cart.
+    expect(page().querySelector('.line .amount')?.textContent).toContain('€0.90');
+    expect(page().querySelector('.discount')?.textContent).toContain('€0.15');
+    expect(page().querySelector('.total')?.textContent).toContain('€0.75');
+    expect(page().querySelector('.saved')?.textContent).toContain('€0.15');
   });
 
   it('shows what the backend says when it refuses the cart', () => {

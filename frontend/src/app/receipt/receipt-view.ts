@@ -1,3 +1,4 @@
+import { CurrencyPipe } from '@angular/common';
 import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, skip, Subject, switchMap, takeUntil } from 'rxjs';
@@ -11,7 +12,7 @@ import { CheckoutApi, Receipt } from './checkout-api';
  */
 @Component({
   selector: 'app-receipt',
-  imports: [],
+  imports: [CurrencyPipe],
   templateUrl: './receipt-view.html',
   styleUrl: './receipt-view.css',
 })
@@ -79,9 +80,5 @@ export class ReceiptView {
 
   protected checkout(): void {
     this.checkoutPresses.next();
-  }
-
-  protected euros(cents: number): string {
-    return (cents / 100).toFixed(2) + ' €';
   }
 }
