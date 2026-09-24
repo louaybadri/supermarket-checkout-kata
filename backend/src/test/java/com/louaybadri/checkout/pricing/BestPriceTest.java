@@ -1,6 +1,7 @@
 package com.louaybadri.checkout.pricing;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Map;
 
@@ -22,34 +23,34 @@ class BestPriceTest {
 
 	@Test
 	void usesNoOfferWhenNoneFits() {
-		BestPrice.Choice choice = choose(Map.of("BANANA", 2));
+		BestPrice.OfferCombination combination = choose(Map.of("BANANA", 2));
 
-		assertThat(choice.offers()).isEmpty();
-		assertThat(choice.total()).isEqualTo(Money.ofCents(40));
+		assertThat(combination.offersUsage()).isEmpty();
+		assertThat(combination.total()).isEqualTo(Money.ofCents(40));
 	}
 
 	@Test
 	void prefersThreeBundlesOverTheOfferWithTheBiggerSingleSaving() {
-		BestPrice.Choice choice = choose(Map.of("APPLE", 3, "BANANA", 3));
+		BestPrice.OfferCombination combination = choose(Map.of("APPLE", 3, "BANANA", 3));
 
-		assertThat(choice.offers()).containsExactly(BUNDLE, BUNDLE, BUNDLE);
-		assertThat(choice.total()).isEqualTo(Money.ofCents(90));
+		assertThat(combination.offersUsage()).containsExactly(entry(BUNDLE, 3));
+		assertThat(combination.total()).isEqualTo(Money.ofCents(90));
 	}
 
 	@Test
 	void combinesTwoDifferentOffers() {
-		BestPrice.Choice choice = choose(Map.of("APPLE", 4, "BANANA", 1));
+		BestPrice.OfferCombination combination = choose(Map.of("APPLE", 4, "BANANA", 1));
 
-		assertThat(choice.offers()).containsExactlyInAnyOrder(THREE_APPLES, BUNDLE);
-		assertThat(choice.total()).isEqualTo(Money.ofCents(90));
+		assertThat(combination.offersUsage()).containsOnly(entry(THREE_APPLES, 1), entry(BUNDLE, 1));
+		assertThat(combination.total()).isEqualTo(Money.ofCents(90));
 	}
 
 	@Test
 	void leavesUncoveredItemsAtShelfPrice() {
-		BestPrice.Choice choice = choose(Map.of("APPLE", 2, "BANANA", 1));
+		BestPrice.OfferCombination combination = choose(Map.of("APPLE", 2, "BANANA", 1));
 
-		assertThat(choice.offers()).containsExactly(BUNDLE);
-		assertThat(choice.total()).isEqualTo(Money.ofCents(60));
+		assertThat(combination.offersUsage()).containsExactly(entry(BUNDLE, 1));
+		assertThat(combination.total()).isEqualTo(Money.ofCents(60));
 	}
 
 	@Test
@@ -57,13 +58,14 @@ class BestPriceTest {
 		Catalog badDeals = new StubCatalog().selling(APPLE)
 			.offering(new Offer("2 apples for 0.70", Map.of("APPLE", 2), Money.ofCents(70)));
 
-		BestPrice.Choice choice = new BestPrice(badDeals).chooseFor(Map.of("APPLE", 2));
+		BestPrice.OfferCombination combination = new BestPrice(badDeals)
+			.cheapestCombinationFor(Map.of("APPLE", 2));
 
-		assertThat(choice.offers()).isEmpty();
-		assertThat(choice.total()).isEqualTo(Money.ofCents(60));
+		assertThat(combination.offersUsage()).isEmpty();
+		assertThat(combination.total()).isEqualTo(Money.ofCents(60));
 	}
 
-	private BestPrice.Choice choose(Map<String, Integer> basket) {
-		return new BestPrice(shop).chooseFor(basket);
+	private BestPrice.OfferCombination choose(Map<String, Integer> basket) {
+		return new BestPrice(shop).cheapestCombinationFor(basket);
 	}
 }

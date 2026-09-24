@@ -101,6 +101,14 @@ class CheckoutOffersTest {
 			.isEqualTo(Money.ofCents(90));
 	}
 
+	@Test
+	void aHugeCartIsPricedWithoutRunningOutOfStack() {
+		Cart twoHundredThousandApples = new Cart(List.of(new Cart.Item("APPLE", 200_000)));
+
+		// The offer 100,000 times at 0.45.
+		assertThat(checkout.total(twoHundredThousandApples)).isEqualTo(Money.ofCents(4_500_000));
+	}
+
 	private static Cart cartOf(String... skus) {
 		return new Cart(List.of(skus).stream().map(sku -> new Cart.Item(sku, 1)).toList());
 	}

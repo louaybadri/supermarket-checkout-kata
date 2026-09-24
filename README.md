@@ -120,9 +120,9 @@ which is why the pricing tests need no database and no Spring context and run in
 - **One shape of offer:** a name, the set of items it needs, and the price for that set.
 - **The cheapest combination is found by searching**, not by applying offers greedily. With
   "3 apples for 0.60" and "an apple and a banana for 0.30", a basket of 3 apples and 3 bananas
-  costs 1.20 greedily and 0.90 when the bundle is used three times. The search tries every
-  offer that fits plus the option of stopping, and remembers each basket it has already solved,
-  which keeps a supermarket-sized cart instant.
+  costs 1.20 greedily and 0.90 when the bundle is used three times. The search takes the offers
+  one at a time and tries using each one 0, 1, 2… times, so the recursion is only as deep as the
+  list of offers, however large the cart.
 - **Checkout is stateless.** The frontend holds the cart and sends it to `POST /api/checkout`,
   which returns a receipt with lines, discounts and the total. There was no requirement to keep
   carts across sessions.
