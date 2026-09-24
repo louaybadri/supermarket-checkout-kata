@@ -43,7 +43,7 @@ class BundleWeekSeedingTest {
 		// Shelf price is 1.40. Three apples for 0.60 with the rest at shelf price is 1.10.
 		// Three apples for 0.60 plus the apple and banana bundle for 0.40 is 1.00.
 		assertThat(checkout.total(cart)).isEqualTo(Money.ofCents(100));
-		assertThat(checkout.ring(cart).discounts()).extracting(AppliedOffer::name)
+		assertThat(checkout.receiptFor(cart).discounts()).extracting(AppliedOffer::name)
 			.containsExactlyInAnyOrder("3 apples for 0.60", "Apple & banana for 0.40");
 	}
 }

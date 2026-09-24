@@ -33,7 +33,7 @@ class CheckoutLookupsTest {
 		Cart cart = new Cart(List.of(new Cart.Item("APPLE", 20), new Cart.Item("BANANA", 20),
 				new Cart.Item("BREAD", 20), new Cart.Item("MILK", 20)));
 
-		new Checkout(catalog).ring(cart);
+		new Checkout(catalog).receiptFor(cart);
 
 		assertThat(catalog.lookups).containsOnly(Map.entry("APPLE", 1), Map.entry("BANANA", 1),
 				Map.entry("BREAD", 1), Map.entry("MILK", 1));

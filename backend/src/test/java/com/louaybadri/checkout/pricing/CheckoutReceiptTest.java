@@ -25,7 +25,7 @@ class CheckoutReceiptTest {
 
 	@Test
 	void printsOneLinePerProductAtShelfPrice() {
-		Receipt receipt = checkout.ring(cartOf("APPLE", "APPLE", "APPLE", "BANANA"));
+		Receipt receipt = checkout.receiptFor(cartOf("APPLE", "APPLE", "APPLE", "BANANA"));
 
 		assertThat(receipt.lines())
 			.extracting(ReceiptLine::sku, ReceiptLine::name, ReceiptLine::quantity, ReceiptLine::lineTotal)
@@ -35,7 +35,7 @@ class CheckoutReceiptTest {
 
 	@Test
 	void printsTheOfferThatFiredAndWhatItSaved() {
-		Receipt receipt = checkout.ring(cartOf("APPLE", "APPLE", "APPLE"));
+		Receipt receipt = checkout.receiptFor(cartOf("APPLE", "APPLE", "APPLE"));
 
 		assertThat(receipt.discounts())
 			.extracting(AppliedOffer::name, AppliedOffer::times, AppliedOffer::saving)
@@ -46,7 +46,7 @@ class CheckoutReceiptTest {
 
 	@Test
 	void countsAnOfferThatFiresSeveralTimesOnOneLine() {
-		Receipt receipt = checkout.ring(cartOf("APPLE", "APPLE", "APPLE", "APPLE", "APPLE"));
+		Receipt receipt = checkout.receiptFor(cartOf("APPLE", "APPLE", "APPLE", "APPLE", "APPLE"));
 
 		assertThat(receipt.discounts())
 			.extracting(AppliedOffer::times, AppliedOffer::saving)
@@ -56,7 +56,7 @@ class CheckoutReceiptTest {
 
 	@Test
 	void showsNoDiscountsWhenNoOfferFires() {
-		Receipt receipt = checkout.ring(cartOf("BANANA", "BANANA"));
+		Receipt receipt = checkout.receiptFor(cartOf("BANANA", "BANANA"));
 
 		assertThat(receipt.discounts()).isEmpty();
 		assertThat(receipt.totalSavings()).isEqualTo(Money.ZERO);
@@ -67,7 +67,7 @@ class CheckoutReceiptTest {
 	void showsABundleAsOneDiscountAcrossTwoLines() {
 		Checkout withBundle = new Checkout(new StubCatalog().selling(APPLE, BANANA).offering(BUNDLE));
 
-		Receipt receipt = withBundle.ring(cartOf("APPLE", "BANANA"));
+		Receipt receipt = withBundle.receiptFor(cartOf("APPLE", "BANANA"));
 
 		assertThat(receipt.lines()).hasSize(2);
 		assertThat(receipt.discounts())
@@ -78,7 +78,7 @@ class CheckoutReceiptTest {
 
 	@Test
 	void anEmptyCartPrintsNothingAndCostsNothing() {
-		Receipt receipt = checkout.ring(Cart.empty());
+		Receipt receipt = checkout.receiptFor(Cart.empty());
 
 		assertThat(receipt.lines()).isEmpty();
 		assertThat(receipt.discounts()).isEmpty();
@@ -90,7 +90,7 @@ class CheckoutReceiptTest {
 		Checkout withBundle = new Checkout(
 				new StubCatalog().selling(APPLE, BANANA).offering(TWO_APPLES, BUNDLE));
 
-		Receipt receipt = withBundle.ring(cartOf("APPLE", "APPLE", "APPLE", "BANANA"));
+		Receipt receipt = withBundle.receiptFor(cartOf("APPLE", "APPLE", "APPLE", "BANANA"));
 
 		// Two apples for 0.45, then the spare apple and banana as a bundle for 0.40.
 		assertThat(receipt.total()).isEqualTo(Money.ofCents(85));

@@ -21,6 +21,6 @@ class CheckoutController {
 
 	@PostMapping
 	ReceiptResponse checkout(@Valid @RequestBody CheckoutRequest request) {
-		return ReceiptResponse.from(checkout.ring(request.toCart()));
+		return ReceiptResponse.from(checkout.receiptFor(request.toCart()));
 	}
 }

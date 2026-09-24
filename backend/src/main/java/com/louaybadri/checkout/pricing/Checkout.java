@@ -15,19 +15,19 @@ public class Checkout {
 		this.catalog = catalog;
 	}
 
-	public Receipt ring(Cart cart) {
+	public Receipt receiptFor(Cart cart) {
 		Catalog remembered = new RememberingCatalog(catalog);
 		Map<String, Integer> basket = cart.quantityBySku();
-		List<ReceiptLine> lines = linesFor(basket, remembered);
+		List<ReceiptLine> lines = receiptLinesFor(basket, remembered);
 		BestPrice.OfferCombination cheapest = new BestPrice(remembered).cheapestCombinationFor(basket);
 		return new Receipt(lines, discountsFrom(cheapest.offersUsage(), remembered));
 	}
 
 	public Money total(Cart cart) {
-		return ring(cart).total();
+		return receiptFor(cart).total();
 	}
 
-	private static List<ReceiptLine> linesFor(Map<String, Integer> basket, Catalog remembered) {
+	private static List<ReceiptLine> receiptLinesFor(Map<String, Integer> basket, Catalog remembered) {
 		return basket.entrySet().stream().map(line -> {
 			Product product = remembered.require(line.getKey());
 			return new ReceiptLine(product.sku(), product.name(), line.getValue(), product.unitPrice());
