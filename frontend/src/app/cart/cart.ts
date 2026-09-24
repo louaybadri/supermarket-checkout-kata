@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import { Product } from './catalog';
+import { Product } from '../catalog/catalog';
 
 export interface CartLine {
   product: Product;

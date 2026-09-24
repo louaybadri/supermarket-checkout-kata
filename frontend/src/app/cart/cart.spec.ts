@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { Cart } from './cart';
-import { Product } from './catalog';
+import { Product } from '../catalog/catalog';
 
 const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 };
 const BANANA: Product = { sku: 'BANANA', name: 'Banana', unitPriceCents: 20 };

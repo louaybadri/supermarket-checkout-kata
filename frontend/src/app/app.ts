@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { CartView } from './cart-view';
-import { ProductList } from './product-list';
+import { CartView } from './cart/cart-view';
+import { ProductList } from './catalog/product-list';
 
 @Component({
   imports: [ProductList, CartView],

@@ -2,7 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { Cart } from './cart';
+import { Cart } from '../cart/cart';
 import { Catalog, Offer, Product } from './catalog';
 
 /** The shelf: what is for sale, and which deals mention each product. */

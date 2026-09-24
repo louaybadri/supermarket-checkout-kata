@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Cart } from './cart';
 import { CartView } from './cart-view';
-import { Product } from './catalog';
+import { Product } from '../catalog/catalog';
 
 const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 };
 
