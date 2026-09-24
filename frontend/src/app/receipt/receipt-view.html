@@ -1,14 +1,28 @@
-<section class="till">
-  <button type="button" class="checkout" [disabled]="cart.isEmpty() || ringing()" (click)="checkout()">
-    Checkout
+<section class="checkout-panel">
+  <button
+    type="button"
+    class="button-primary checkout"
+    [disabled]="cart.isEmpty() || ringing()"
+    (click)="checkout()"
+  >
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 8h6M9 12h6M9 16h4" />
+    </svg>
+    {{ ringing() ? 'Ringing up…' : 'Checkout' }}
   </button>
 
   @if (error(); as message) {
-    <p class="error" role="alert">{{ message }}</p>
+    <p class="error" role="alert">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v6M12 16.5v.01" />
+      </svg>
+      {{ message }}
+    </p>
   }
 
   @if (receipt(); as bill) {
-    <article class="receipt">
+    <article class="receipt card">
       <h2>Receipt</h2>
 
       @for (line of bill.lines; track line.sku) {
@@ -22,6 +36,10 @@
 
       @for (discount of bill.discounts; track discount.name) {
         <p class="discount">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+            <circle cx="7.5" cy="7.5" r="1.1" />
+          </svg>
           <span class="name">{{ discount.name }}</span>
           @if (discount.times > 1) {
             <span class="times">× {{ discount.times }}</span>

@@ -1,45 +1,83 @@
 .checkout {
-  margin: 0.75rem 0;
-  padding: 0.4rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  width: 100%;
 }
 
 .receipt {
-  max-width: 24rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  margin-top: var(--space-m);
   font-variant-numeric: tabular-nums;
+}
+
+.receipt h2 {
+  font-size: 1rem;
+  color: var(--neutral-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-m);
 }
 
 .line,
 .discount,
 .total {
   display: flex;
-  gap: 0.6rem;
-  margin: 0.2rem 0;
+  align-items: center;
+  gap: var(--space-s);
+  margin: var(--space-xs) 0;
+}
+
+.quantity {
+  color: var(--neutral-400);
+  min-width: 2rem;
 }
 
 .name {
   flex: 1;
+  min-width: 0;
+}
+
+.unit {
+  color: var(--neutral-400);
+  font-size: 0.85rem;
 }
 
 .discount {
-  color: #256029;
-  padding-left: 1rem;
+  color: var(--green-700);
+  padding-left: var(--space-m);
+}
+
+.times {
+  color: var(--neutral-400);
+  font-size: 0.85rem;
 }
 
 .total {
-  margin-top: 0.6rem;
-  padding-top: 0.4rem;
-  border-top: 1px solid #ddd;
-  font-weight: 700;
+  margin-top: var(--space-s);
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--neutral-300);
+  font-weight: var(--weight-head);
+  font-size: 1.1rem;
 }
 
 .saved {
-  color: #256029;
-  margin: 0.2rem 0 0;
+  display: inline-block;
+  margin: var(--space-xs) 0 0;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--green-100);
+  color: var(--green-700);
+  font-size: 0.85rem;
 }
 
 .error {
-  color: #a11;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-m);
+  background: var(--red-100);
+  color: var(--red-700);
 }

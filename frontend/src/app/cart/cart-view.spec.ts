@@ -34,7 +34,7 @@ describe('CartView', () => {
 
     expect(page().querySelector('.name')?.textContent).toContain('Apple');
     expect(page().querySelector('.quantity')?.textContent?.trim()).toBe('2');
-    expect(page().querySelector('h2')?.textContent).toContain('(2)');
+    expect(page().querySelector('.count')?.textContent?.trim()).toBe('2');
   });
 
   it('puts one back when the minus button is pressed', () => {

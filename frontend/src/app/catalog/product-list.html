@@ -1,18 +1,34 @@
-<section class="shelf">
+<section class="shelf card">
   <h2>On the shelf</h2>
 
   @for (product of products(); track product.sku) {
     <article class="product">
-      <span class="name">{{ product.name }}</span>
+      <span class="initial" aria-hidden="true">{{ product.name.charAt(0) }}</span>
+
+      <span class="details">
+        <span class="name">{{ product.name }}</span>
+
+        @for (offer of offersFor()[product.sku] ?? []; track offer.name) {
+          <span class="offer">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+              <circle cx="7.5" cy="7.5" r="1.1" />
+            </svg>
+            {{ offer.name }}
+          </span>
+        }
+      </span>
+
       <span class="price">{{ product.unitPriceCents / 100 | currency: 'EUR' }}</span>
 
-      @for (offer of offersFor()[product.sku] ?? []; track offer.name) {
-        <span class="offer">{{ offer.name }}</span>
-      }
-
-      <button type="button" (click)="cart.add(product)">Add</button>
+      <button type="button" class="button-quiet add" (click)="cart.add(product)">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Add
+      </button>
     </article>
   } @empty {
-    <p>The shop is empty.</p>
+    <p class="empty">The shop is empty.</p>
   }
 </section>

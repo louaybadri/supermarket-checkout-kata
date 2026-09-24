@@ -1,0 +1,52 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-m) var(--space-xl);
+  background: var(--brand-400);
+  color: #fff;
+}
+
+.topbar h1 {
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+}
+
+.logo {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke-width: 1.6;
+}
+
+/* Shelf, cart and receipt side by side, so a whole shop trip fits on one screen. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-l);
+  align-items: start;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: var(--space-l) var(--space-xl);
+}
+
+.colophon {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 var(--space-xl) var(--space-l);
+  color: var(--neutral-400);
+  font-size: 0.8rem;
+}
+
+/* Two columns when the receipt no longer fits beside the cart. */
+@media (max-width: 68rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-m);
+  }
+}

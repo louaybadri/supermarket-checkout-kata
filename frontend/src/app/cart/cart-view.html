@@ -1,34 +1,52 @@
-<section class="cart">
-  <h2>Your cart ({{ cart.itemCount() }})</h2>
+<section class="cart card">
+  <h2>
+    Your cart
+    <span class="count">{{ cart.itemCount() }}</span>
+  </h2>
 
   @if (cart.isEmpty()) {
-    <p>Nothing in it yet.</p>
+    <p class="empty">Nothing in it yet.</p>
   } @else {
     @for (line of cart.lines(); track line.product.sku) {
       <article class="line">
         <span class="name">{{ line.product.name }}</span>
         <span class="price">{{ line.product.unitPriceCents / 100 | currency: 'EUR' }}</span>
 
-        <button
-          type="button"
-          (click)="cart.removeOne(line.product.sku)"
-          [attr.aria-label]="'One less ' + line.product.name"
-        >
-          −
-        </button>
-        <span class="quantity">{{ line.quantity }}</span>
-        <button
-          type="button"
-          (click)="cart.add(line.product)"
-          [attr.aria-label]="'One more ' + line.product.name"
-        >
-          +
-        </button>
+        <span class="stepper">
+          <button
+            type="button"
+            class="button-quiet"
+            (click)="cart.removeOne(line.product.sku)"
+            [attr.aria-label]="'One less ' + line.product.name"
+          >
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+          </button>
 
-        <button type="button" class="remove" (click)="cart.removeLine(line.product.sku)">Remove</button>
+          <span class="quantity">{{ line.quantity }}</span>
+
+          <button
+            type="button"
+            class="button-quiet"
+            (click)="cart.add(line.product)"
+            [attr.aria-label]="'One more ' + line.product.name"
+          >
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          </button>
+        </span>
+
+        <button
+          type="button"
+          class="button-quiet remove"
+          (click)="cart.removeLine(line.product.sku)"
+          [attr.aria-label]="'Remove ' + line.product.name"
+        >
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+          </svg>
+        </button>
       </article>
     }
 
-    <button type="button" class="clear" (click)="cart.clear()">Empty the cart</button>
+    <button type="button" class="button-quiet clear" (click)="cart.clear()">Empty the cart</button>
   }
 </section>
