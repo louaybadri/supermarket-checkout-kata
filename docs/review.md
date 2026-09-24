@@ -8,7 +8,7 @@ own commit, with its test, and the commit message names the item, for example
 
 | # | Area | Problem | Status |
 |---|---|---|---|
-| 1 | Pricing | Prices are read from the database for every basket the search tries | open |
+| 1 | Pricing | Prices are read from the database for every basket the search tries | fixed |
 | 2 | Pricing | The search goes one call deeper for every offer it applies | open |
 | 3 | API | A `null` item crashes the server | open |
 | 4 | API | Validation errors are not `ProblemDetail` | open |
@@ -55,14 +55,25 @@ curl -s -o /dev/null -w '%{time_total}s\n' -X POST localhost:8080/api/checkout \
 
 **28.6 seconds.** 3,000 apples with 3,000 bananas had not answered after 60 seconds.
 
-**Fix.** `Checkout` looks each product up once, before the search starts, and hands `BestPrice`
-a `Map<String, Money>` of unit prices. `BestPrice` no longer sees the `Catalog` at all.
+**Fix.** Each checkout wraps the catalog in a `RememberingCatalog`, which fetches a product the
+first time it is asked for and answers from memory after that. The receipt lines, the search and
+the discounts all go through it. It lives for one checkout, so the next cart still sees the
+catalog as it is.
+
+The first plan was to hand `BestPrice` a map of prices for the skus in the cart. It would not
+have been enough: before searching, `BestPrice` checks each offer against the shelf price of the
+items it needs, and those can be products the cart does not hold.
 
 **Test.** A catalog stub that counts calls: pricing the cart above calls `require` at most once
 per sku. A timing test would prove nothing here, because the unit tests' catalog is already in
 memory and fast; the count is what points at the cause.
 
-- [ ] Fixed in: _commit_
+**After.** At 20 of each product the search used to ask for each sku about 1,700 times; now it
+asks once. The cart above went from 28.6 to about 11 seconds. The rest is the search itself,
+which is #2: in memory, with no database at all, it takes 0.19 s at 50 of each product and 5.2 s
+at 100, because every basket it solves keeps its own copy of the list of offers used.
+
+- [x] Fixed in: "Look each product up once per checkout (review #1)"
 
 ---
 

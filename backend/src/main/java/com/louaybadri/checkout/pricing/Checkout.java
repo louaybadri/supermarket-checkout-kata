@@ -17,19 +17,20 @@ public class Checkout {
 	}
 
 	public Receipt ring(Cart cart) {
+		Catalog shop = new RememberingCatalog(catalog);
 		Map<String, Integer> basket = cart.quantityBySku();
-		List<ReceiptLine> lines = linesFor(basket);
-		List<Offer> chosen = new BestPrice(catalog).chooseFor(basket).offers();
-		return new Receipt(lines, discountsFrom(chosen));
+		List<ReceiptLine> lines = linesFor(basket, shop);
+		List<Offer> chosen = new BestPrice(shop).chooseFor(basket).offers();
+		return new Receipt(lines, discountsFrom(chosen, shop));
 	}
 
 	public Money total(Cart cart) {
 		return ring(cart).total();
 	}
 
-	private List<ReceiptLine> linesFor(Map<String, Integer> basket) {
+	private static List<ReceiptLine> linesFor(Map<String, Integer> basket, Catalog shop) {
 		return basket.entrySet().stream().map(line -> {
-			Product product = catalog.require(line.getKey());
+			Product product = shop.require(line.getKey());
 			return new ReceiptLine(product.sku(), product.name(), line.getValue(), product.unitPrice());
 		}).toList();
 	}
@@ -38,13 +39,13 @@ public class Checkout {
 	 * The same offer can be applied several times, so the chosen offers are counted and each one
 	 * becomes a single discount line.
 	 */
-	private List<AppliedOffer> discountsFrom(List<Offer> chosen) {
+	private static List<AppliedOffer> discountsFrom(List<Offer> chosen, Catalog shop) {
 		Map<Offer, Integer> times = new LinkedHashMap<>();
 		chosen.forEach(offer -> times.merge(offer, 1, Integer::sum));
 
 		return times.entrySet().stream().map(applied -> {
 			Offer offer = applied.getKey();
-			Money savingEachTime = offer.shelfPrice(catalog).minus(offer.price());
+			Money savingEachTime = offer.shelfPrice(shop).minus(offer.price());
 			return new AppliedOffer(offer.name(), applied.getValue(), savingEachTime.times(applied.getValue()));
 		}).toList();
 	}
