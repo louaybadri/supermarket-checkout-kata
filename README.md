@@ -13,8 +13,10 @@ and an Angular / TypeScript frontend.
 
 ## How to run
 
-Prerequisites: JDK 25, Node 22.22 or newer. The Gradle build downloads the JDK itself if you
-don't have it.
+Prerequisites: JDK 25 and Node 24. With [mise](https://mise.jdx.dev) installed, `mise install`
+picks both up from `mise.toml` for this directory only, leaving the versions you use elsewhere
+untouched. Otherwise the Gradle wrapper downloads the JDK itself, and `frontend/.nvmrc` carries
+the Node version for nvm, fnm and asdf.
 
 ```bash
 # backend, http://localhost:8080

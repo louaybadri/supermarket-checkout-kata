@@ -24,6 +24,3 @@ Thumbs.db
 # Local environment
 .env
 .env.*
-
-# mise: local JDK pin, the Gradle toolchain is what the build relies on
-mise.toml

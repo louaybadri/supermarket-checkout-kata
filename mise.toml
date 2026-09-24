@@ -1,0 +1,11 @@
+# Toolchain for this project, for anyone using mise. Installed per project, so it leaves the
+# versions you use elsewhere alone:
+#
+#   mise install
+#
+# Without mise: JDK 25 and Node 24. The Gradle wrapper provisions the JDK on its own, and
+# frontend/.nvmrc carries the Node version for nvm, fnm and asdf.
+
+[tools]
+java = "temurin-25"
+node = "24"
