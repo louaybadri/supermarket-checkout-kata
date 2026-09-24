@@ -4,6 +4,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, finalize, skip, Subject, switchMap, takeUntil } from 'rxjs';
 
 import { Cart, CartLine } from '../cart/cart';
+import { ShopConnection } from '../connection/shop-connection';
 import { CheckoutApi, Receipt } from './checkout-api';
 
 /**
@@ -18,6 +19,8 @@ import { CheckoutApi, Receipt } from './checkout-api';
 })
 export class ReceiptView {
   private readonly api = inject(CheckoutApi);
+
+  private readonly connection = inject(ShopConnection);
 
   protected readonly cart = inject(Cart);
 
@@ -60,6 +63,9 @@ export class ReceiptView {
           // request first, and its finalize would otherwise switch this back off.
           this.pricing.set(true);
           return this.api.receiptFor(this.cart.toRequestItems()).pipe(
+            // While the shop cannot be reached, the same cart is sent again every few seconds
+            // and the banner says so; the bill prints once the shop answers.
+            this.connection.keepTrying(),
             // The cart changed while the backend was pricing it, so the answer is for a cart
             // that no longer exists: unsubscribing cancels the HTTP request and nothing prints.
             takeUntil(this.cartChanges),

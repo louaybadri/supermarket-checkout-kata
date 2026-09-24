@@ -17,7 +17,7 @@ own commit, with its test, and the commit message names the item, for example
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | fixed |
 | 8 | UI | A reply for an old cart can overwrite the receipt | fixed |
 | 9 | UI | Money is formatted two different ways | fixed |
-| 10 | UI | An unreachable backend looks like an empty or broken shop | open |
+| 10 | UI | An unreachable backend looks like an empty or broken shop | fixed |
 
 The evidence below was gathered with the `bundle-week` preset:
 
@@ -421,4 +421,4 @@ and a 500 are not retried. A checkout pressed while the shop is down prints its 
 shop is back, unless the cart changed in between.
 
 - [x] Shelf and offers fixed in: "Keep trying when the shop cannot be reached (review #10)"
-- [ ] Checkout fixed in: _commit_
+- [x] Checkout fixed in: "Price the cart once the shop is back (review #10)"

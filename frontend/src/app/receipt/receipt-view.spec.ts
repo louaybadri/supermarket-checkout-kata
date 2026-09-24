@@ -118,6 +118,27 @@ describe('ReceiptView', () => {
     expect(page().querySelector('.checkout')?.textContent).toContain('Checkout');
   });
 
+  it('prints the bill once the shop is back, when checkout was pressed while it was away', () => {
+    vi.useFakeTimers();
+    cart.add(APPLE);
+    fixture.detectChanges();
+    pressCheckout();
+
+    http.expectOne('/api/checkout').flush(null, { status: 502, statusText: 'Bad Gateway' });
+    fixture.detectChanges();
+    // Not an error about the cart: the cart is fine, the shop is away, and it keeps trying.
+    expect(page().querySelector('.error')).toBeNull();
+    expect(page().querySelector('.checkout')?.textContent).toContain('Pricing…');
+
+    vi.advanceTimersByTime(3000);
+    http.expectOne('/api/checkout').flush(THREE_APPLES_RECEIPT);
+    fixture.detectChanges();
+
+    expect(page().querySelector('.receipt')).not.toBeNull();
+    expect(page().querySelector('.checkout')?.textContent).toContain('Checkout');
+    vi.useRealTimers();
+  });
+
   // The two tests below read the component's state straight after the cart changes, with no
   // change detection in between, so they fail if the reset waits for Angular's next render.
 
