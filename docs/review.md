@@ -10,7 +10,7 @@ own commit, with its test, and the commit message names the item, for example
 |---|---|---|---|
 | 1 | Pricing | Prices are read from the database for every basket the search tries | fixed |
 | 2 | Pricing | The search goes one call deeper for every offer it applies | fixed |
-| 3 | API | A `null` item crashes the server | open |
+| 3 | API | A `null` item crashes the server | fixed |
 | 4 | API | Validation errors are not `ProblemDetail` | open |
 | 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | open |
 | 6 | API + UI | The frontend does not know how many of a product may be bought | open |
@@ -151,7 +151,7 @@ record CheckoutRequest(@NotNull List<@NotNull @Valid ItemRequest> items)
 
 **Test.** `@WebMvcTest`: `{"items":[null]}` is a 400.
 
-- [ ] Fixed in: _commit_
+- [x] Fixed in: "Reject a cart with a missing item (review #3)"
 
 ---
 

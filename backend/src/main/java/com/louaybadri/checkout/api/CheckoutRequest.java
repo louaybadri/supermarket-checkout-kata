@@ -11,8 +11,12 @@ import com.louaybadri.checkout.pricing.Cart;
 
 /**
  * The cart as it arrives over HTTP: {@code {"items":[{"sku":"APPLE","quantity":3}]}}.
+ *
+ * <p>The constraints sit on the element type, {@code List<@NotNull @Valid ItemRequest>}, so each
+ * entry of the list is checked: {@code @NotNull} rejects {@code {"items":[null]}}, and
+ * {@code @Valid} goes on to check the sku and the quantity inside every item.
  */
-record CheckoutRequest(@NotNull @Valid List<ItemRequest> items) {
+record CheckoutRequest(@NotNull List<@NotNull @Valid ItemRequest> items) {
 
 	record ItemRequest(@NotBlank String sku, @Min(1) int quantity) {
 	}

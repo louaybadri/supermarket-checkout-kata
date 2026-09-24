@@ -82,6 +82,14 @@ class CheckoutApiTest {
 	}
 
 	@Test
+	void rejectsAMissingItem() throws Exception {
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"items":[null]}"""))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void listsWhatTheShopSells() throws Exception {
 		mvc.perform(get("/api/products"))
 			.andExpect(status().isOk())
