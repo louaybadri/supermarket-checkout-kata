@@ -101,6 +101,21 @@ describe('ReceiptView', () => {
     expect(page().querySelector('.receipt')).toBeNull();
   });
 
+  it('drops the reply for a cart that changed while it was being priced', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+    pressCheckout();
+    const call = http.expectOne('/api/checkout');
+
+    // Another apple goes in before the backend has answered for one.
+    cart.add(APPLE);
+    fixture.detectChanges();
+
+    expect(call.cancelled).toBe(true);
+    expect(page().querySelector('.receipt')).toBeNull();
+    expect(page().querySelector('.checkout')?.textContent).toContain('Checkout');
+  });
+
   // The two tests below read the component's state straight after the cart changes, with no
   // change detection in between, so they fail if the reset waits for Angular's next render.
 

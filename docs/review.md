@@ -15,7 +15,7 @@ own commit, with its test, and the commit message names the item, for example
 | 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | fixed |
 | 6 | API + UI | The frontend does not know how many of a product may be bought | fixed |
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | fixed |
-| 8 | UI | A reply for an old cart can overwrite the receipt | open |
+| 8 | UI | A reply for an old cart can overwrite the receipt | fixed |
 | 9 | UI | Money is formatted two different ways | open |
 
 The evidence below was gathered with the `bundle-week` preset:
@@ -322,23 +322,36 @@ new one.
 `takeUntil` drops a reply the cart has moved past:
 
 ```ts
-this.clicks.pipe(
-  tap(() => this.ringing.set(true)),
-  switchMap(() => this.api.ring(this.cart.toRequestItems()).pipe(
-    takeUntil(this.cartChanges),
-    finalize(() => this.ringing.set(false)),
-  )),
+this.checkoutPresses.pipe(
+  switchMap(() => {
+    this.pricing.set(true);
+    return this.api.receiptFor(this.cart.toRequestItems()).pipe(
+      takeUntil(this.cartChanges),
+      catchError((failure) => { this.error.set(…); return EMPTY; }),
+      finalize(() => this.pricing.set(false)),
+    );
+  }),
   takeUntilDestroyed(),
-).subscribe(…);
+).subscribe((receipt) => this.receipt.set(receipt));
 ```
+
+`pricing` is switched on inside `switchMap` rather than in a `tap` before it. `switchMap` cancels
+the previous request before starting the next one, and that request's `finalize` would otherwise
+switch it straight back off. The error is caught inside, so a refused cart does not end the
+stream for the next press. The same commit renames the frontend's `ring` to `receiptFor`, and
+`ringing` to `pricing`, to match the backend.
 
 This is the other half of #7: `linkedSignal` clears the bill already on screen, `takeUntil`
 stops the one still on its way from replacing it.
 
-**Test.** With `HttpTestingController`: start a checkout, add an item, then answer the request.
-No receipt is shown, and the button no longer says "Ringing up…".
+**Test.** With `HttpTestingController`: start a checkout, then add an item before the backend has
+answered. The request is cancelled, no receipt is shown, and the button no longer says
+"Pricing…".
 
-- [ ] Fixed in: _commit_
+**After.** The request for the old cart is cancelled, no bill is printed, and the button reads
+"Checkout" again.
+
+- [x] Fixed in: "Drop a reply for a cart that has changed (review #8)"
 
 ---
 

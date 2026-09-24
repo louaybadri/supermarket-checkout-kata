@@ -2,13 +2,13 @@
   <button
     type="button"
     class="button-primary checkout"
-    [disabled]="cart.isEmpty() || ringing()"
+    [disabled]="cart.isEmpty() || pricing()"
     (click)="checkout()"
   >
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 8h6M9 12h6M9 16h4" />
     </svg>
-    {{ ringing() ? 'Ringing up…' : 'Checkout' }}
+    {{ pricing() ? 'Pricing…' : 'Checkout' }}
   </button>
 
   @if (error(); as message) {

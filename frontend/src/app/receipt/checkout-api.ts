@@ -35,7 +35,7 @@ export interface CartItemRequest {
 export class CheckoutApi {
   private readonly http = inject(HttpClient);
 
-  ring(items: CartItemRequest[]): Observable<Receipt> {
+  receiptFor(items: CartItemRequest[]): Observable<Receipt> {
     return this.http.post<Receipt>('/api/checkout', { items });
   }
 }
