@@ -1,0 +1,43 @@
+<section class="till">
+  <button type="button" class="checkout" [disabled]="cart.isEmpty() || ringing()" (click)="checkout()">
+    Checkout
+  </button>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (receipt(); as bill) {
+    <article class="receipt">
+      <h2>Receipt</h2>
+
+      @for (line of bill.lines; track line.sku) {
+        <p class="line">
+          <span class="quantity">{{ line.quantity }} ×</span>
+          <span class="name">{{ line.name }}</span>
+          <span class="unit">{{ euros(line.unitPriceCents) }}</span>
+          <span class="amount">{{ euros(line.lineTotalCents) }}</span>
+        </p>
+      }
+
+      @for (discount of bill.discounts; track discount.name) {
+        <p class="discount">
+          <span class="name">{{ discount.name }}</span>
+          @if (discount.times > 1) {
+            <span class="times">× {{ discount.times }}</span>
+          }
+          <span class="amount">−{{ euros(discount.savingCents) }}</span>
+        </p>
+      }
+
+      <p class="total">
+        <span class="name">Total</span>
+        <span class="amount">{{ euros(bill.totalCents) }}</span>
+      </p>
+
+      @if (bill.totalSavingsCents > 0) {
+        <p class="saved">You saved {{ euros(bill.totalSavingsCents) }}</p>
+      }
+    </article>
+  }
+</section>
