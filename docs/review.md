@@ -14,7 +14,7 @@ own commit, with its test, and the commit message names the item, for example
 | 4 | API | Validation errors are not `ProblemDetail` | fixed |
 | 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | fixed |
 | 6 | API + UI | The frontend does not know how many of a product may be bought | fixed |
-| 7 | UI | The receipt is reset by writing signals inside an `effect()` | open |
+| 7 | UI | The receipt is reset by writing signals inside an `effect()` | fixed |
 | 8 | UI | A reply for an old cart can overwrite the receipt | open |
 | 9 | UI | Money is formatted two different ways | open |
 
@@ -296,7 +296,11 @@ The effect goes away.
 **Test.** The existing "takes the bill down as soon as the cart changes" is tightened to read the
 receipt straight after `cart.add()`, with no change detection in between.
 
-- [ ] Fixed in: _commit_
+**After.** Two new tests read the bill and the error straight after the cart changes, with no
+change detection in between. With the effect both still held the old values; with `linkedSignal`
+both are null at once.
+
+- [x] Fixed in: "Reset the bill from the cart with linkedSignal (review #7)"
 
 ---
 

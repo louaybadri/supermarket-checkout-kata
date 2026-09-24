@@ -1,6 +1,6 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 
-import { Cart } from '../cart/cart';
+import { Cart, CartLine } from '../cart/cart';
 import { CheckoutApi, Receipt } from './checkout-api';
 
 /**
@@ -18,20 +18,23 @@ export class ReceiptView {
 
   protected readonly cart = inject(Cart);
 
-  protected readonly receipt = signal<Receipt | null>(null);
+  /**
+   * The bill for the cart as it was when checkout was pressed. It is linked to the cart: the
+   * moment the cart changes it goes back to null, because a bill printed a moment ago is wrong as
+   * soon as something is added or put back. Until then it can be set like any signal.
+   */
+  protected readonly receipt = linkedSignal<CartLine[], Receipt | null>({
+    source: this.cart.lines,
+    computation: () => null,
+  });
 
-  protected readonly error = signal<string | null>(null);
+  /** What the backend said when it refused the cart, cleared the same way as the bill. */
+  protected readonly error = linkedSignal<CartLine[], string | null>({
+    source: this.cart.lines,
+    computation: () => null,
+  });
 
   protected readonly ringing = signal(false);
-
-  constructor() {
-    // A bill printed a moment ago is wrong as soon as the cart changes, so it goes away.
-    effect(() => {
-      this.cart.lines();
-      this.receipt.set(null);
-      this.error.set(null);
-    });
-  }
 
   protected checkout(): void {
     this.ringing.set(true);

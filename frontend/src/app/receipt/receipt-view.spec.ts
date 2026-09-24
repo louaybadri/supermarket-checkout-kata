@@ -100,4 +100,34 @@ describe('ReceiptView', () => {
 
     expect(page().querySelector('.receipt')).toBeNull();
   });
+
+  // The two tests below read the component's state straight after the cart changes, with no
+  // change detection in between, so they fail if the reset waits for Angular's next render.
+
+  it('forgets the bill the moment the cart changes', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+    pressCheckout();
+    http.expectOne('/api/checkout').flush(THREE_APPLES_RECEIPT);
+
+    cart.add(APPLE);
+
+    expect(fixture.componentInstance['receipt']()).toBeNull();
+  });
+
+  it('forgets the error the moment the cart changes', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+    pressCheckout();
+    http
+      .expectOne('/api/checkout')
+      .flush(
+        { detail: "The shop does not sell 'UNICORN'" },
+        { status: 400, statusText: 'Bad Request' },
+      );
+
+    cart.add(APPLE);
+
+    expect(fixture.componentInstance['error']()).toBeNull();
+  });
 });
