@@ -11,7 +11,7 @@ own commit, with its test, and the commit message names the item, for example
 | 1 | Pricing | Prices are read from the database for every basket the search tries | fixed |
 | 2 | Pricing | The search goes one call deeper for every offer it applies | fixed |
 | 3 | API | A `null` item crashes the server | fixed |
-| 4 | API | Validation errors are not `ProblemDetail` | open |
+| 4 | API | Validation errors are not `ProblemDetail` | fixed |
 | 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | open |
 | 6 | API + UI | The frontend does not know how many of a product may be bought | open |
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | open |
@@ -181,7 +181,17 @@ so the detail names the field:
 **Test.** A quantity of 0 and a missing `items` both return a `title` and a `detail` naming the
 field.
 
-- [ ] Fixed in: _commit_
+**After.** Two broken items in one cart are reported together, sorted by field:
+
+```json
+{ "status": 400, "title": "Invalid cart",
+  "detail": "items[0].quantity: must be greater than or equal to 1; items[1].sku: must not be blank" }
+```
+
+A body that cannot be read as a cart, such as a quantity sent as `"lots"`, is a `ProblemDetail`
+too, with Spring's own wording: "Failed to read request".
+
+- [x] Fixed in: "Answer every bad request with a ProblemDetail (review #4)"
 
 ---
 

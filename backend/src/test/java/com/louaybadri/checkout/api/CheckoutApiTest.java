@@ -70,7 +70,9 @@ class CheckoutApiTest {
 		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
 			.content("""
 					{"items":[{"sku":"APPLE","quantity":0}]}"""))
-			.andExpect(status().isBadRequest());
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("items[0].quantity: must be greater than or equal to 1"));
 	}
 
 	@Test
@@ -78,7 +80,9 @@ class CheckoutApiTest {
 		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
 			.content("""
 					{"items":[{"sku":"","quantity":1}]}"""))
-			.andExpect(status().isBadRequest());
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("items[0].sku: must not be blank"));
 	}
 
 	@Test
@@ -86,7 +90,27 @@ class CheckoutApiTest {
 		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
 			.content("""
 					{"items":[null]}"""))
-			.andExpect(status().isBadRequest());
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("items[0]: must not be null"));
+	}
+
+	@Test
+	void rejectsACartWithoutItems() throws Exception {
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON).content("{}"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid cart"))
+			.andExpect(jsonPath("$.detail").value("items: must not be null"));
+	}
+
+	@Test
+	void rejectsABodyThatIsNotACart() throws Exception {
+		mvc.perform(post("/api/checkout").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"items":[{"sku":"APPLE","quantity":"lots"}]}"""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.status").value(400))
+			.andExpect(jsonPath("$.detail").exists());
 	}
 
 	@Test
