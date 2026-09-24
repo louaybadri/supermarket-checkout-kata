@@ -21,7 +21,12 @@
 
       <span class="price">{{ product.unitPriceCents / 100 | currency: 'EUR' }}</span>
 
-      <button type="button" class="button-quiet add" (click)="cart.add(product)">
+      <button
+        type="button"
+        class="button-quiet add"
+        [disabled]="!cart.canAddMoreOf(product)"
+        (click)="cart.add(product)"
+      >
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 5v14M5 12h14" />
         </svg>

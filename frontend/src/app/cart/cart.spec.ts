@@ -3,8 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { Cart } from './cart';
 import { Product } from '../catalog/catalog';
 
-const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 };
-const BANANA: Product = { sku: 'BANANA', name: 'Banana', unitPriceCents: 20 };
+const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 };
+const BANANA: Product = { sku: 'BANANA', name: 'Banana', unitPriceCents: 20, maxQuantity: 99 };
+/** A product the shop only lets a cart hold two of, so the limit is quick to reach. */
+const CHEESE: Product = { sku: 'CHEESE', name: 'Cheese', unitPriceCents: 250, maxQuantity: 2 };
 
 describe('Cart', () => {
   let cart: Cart;
@@ -64,6 +66,24 @@ describe('Cart', () => {
     cart.removeLine('APPLE');
 
     expect(cart.lines()).toEqual([{ product: BANANA, quantity: 1 }]);
+  });
+
+  it('stops at the most the shop allows of one product', () => {
+    cart.add(CHEESE);
+    cart.add(CHEESE);
+    cart.add(CHEESE);
+
+    expect(cart.lines()).toEqual([{ product: CHEESE, quantity: 2 }]);
+    expect(cart.canAddMoreOf(CHEESE)).toBe(false);
+  });
+
+  it('allows more again once one is put back', () => {
+    cart.add(CHEESE);
+    cart.add(CHEESE);
+
+    cart.removeOne('CHEESE');
+
+    expect(cart.canAddMoreOf(CHEESE)).toBe(true);
   });
 
   it('hands the checkout a sku and a quantity per line', () => {

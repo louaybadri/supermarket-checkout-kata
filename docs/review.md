@@ -13,7 +13,7 @@ own commit, with its test, and the commit message names the item, for example
 | 3 | API | A `null` item crashes the server | fixed |
 | 4 | API | Validation errors are not `ProblemDetail` | fixed |
 | 5 | API | Every `IllegalArgumentException` becomes a 400, so our bugs look like the customer's | fixed |
-| 6 | API + UI | The frontend does not know how many of a product may be bought | open |
+| 6 | API + UI | The frontend does not know how many of a product may be bought | fixed |
 | 7 | UI | The receipt is reset by writing signals inside an `effect()` | open |
 | 8 | UI | A reply for an old cart can overwrite the receipt | open |
 | 9 | UI | Money is formatted two different ways | open |
@@ -262,7 +262,7 @@ past `maxQuantity`, and the button is disabled when it is reached.
 Two commits, one per side:
 
 - [x] Backend fixed in: "Tell the frontend how many of a product it may buy (review #6)"
-- [ ] Frontend fixed in: _commit_
+- [x] Frontend fixed in: "Stop adding at the limit the backend sets (review #6)"
 
 ---
 

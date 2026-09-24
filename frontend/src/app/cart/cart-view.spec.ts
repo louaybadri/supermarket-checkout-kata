@@ -4,7 +4,7 @@ import { Cart } from './cart';
 import { CartView } from './cart-view';
 import { Product } from '../catalog/catalog';
 
-const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 };
+const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 2 };
 
 describe('CartView', () => {
   let fixture: ComponentFixture<CartView>;
@@ -46,6 +46,18 @@ describe('CartView', () => {
     fixture.detectChanges();
 
     expect(page().querySelector('.quantity')?.textContent?.trim()).toBe('1');
+  });
+
+  it('turns the plus button off at the most the shop allows', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+    const plus = page().querySelector<HTMLButtonElement>('[aria-label="One more Apple"]')!;
+    expect(plus.disabled).toBe(false);
+
+    cart.add(APPLE);
+    fixture.detectChanges();
+
+    expect(plus.disabled).toBe(true);
   });
 
   it('empties the cart when asked', () => {

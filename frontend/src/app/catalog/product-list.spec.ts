@@ -2,6 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { Cart } from '../cart/cart';
+import { Product } from './catalog';
 import { ProductList } from './product-list';
 
 describe('ProductList', () => {
@@ -21,7 +23,7 @@ describe('ProductList', () => {
   afterEach(() => http.verify());
 
   function answerWith(
-    products: { sku: string; name: string; unitPriceCents: number }[],
+    products: Product[],
     offers: { name: string; items: Record<string, number>; priceCents: number }[],
   ) {
     http.expectOne('/api/products').flush(products);
@@ -32,8 +34,8 @@ describe('ProductList', () => {
   it('lists what the shop sells, with prices in euros', () => {
     answerWith(
       [
-        { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 },
-        { sku: 'MILK', name: 'Milk', unitPriceCents: 90 },
+        { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 },
+        { sku: 'MILK', name: 'Milk', unitPriceCents: 90, maxQuantity: 99 },
       ],
       [],
     );
@@ -50,8 +52,8 @@ describe('ProductList', () => {
   it('shows an offer next to every product it mentions', () => {
     answerWith(
       [
-        { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 },
-        { sku: 'BANANA', name: 'Banana', unitPriceCents: 20 },
+        { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 },
+        { sku: 'BANANA', name: 'Banana', unitPriceCents: 20, maxQuantity: 99 },
       ],
       [{ name: 'Apple & banana for 0.40', items: { APPLE: 1, BANANA: 1 }, priceCents: 40 }],
     );
@@ -60,6 +62,20 @@ describe('ProductList', () => {
     const badges = Array.from(page.querySelectorAll('.offer')).map((node) => node.textContent?.trim());
 
     expect(badges).toEqual(['Apple & banana for 0.40', 'Apple & banana for 0.40']);
+  });
+
+  it('turns the add button off once the cart holds the most the shop allows', () => {
+    const cheese: Product = { sku: 'CHEESE', name: 'Cheese', unitPriceCents: 250, maxQuantity: 1 };
+    const cart = TestBed.inject(Cart);
+    cart.clear();
+    answerWith([cheese], []);
+    const add = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.add')!;
+    expect(add.disabled).toBe(false);
+
+    cart.add(cheese);
+    fixture.detectChanges();
+
+    expect(add.disabled).toBe(true);
   });
 
   it('says so when the shop is empty', () => {

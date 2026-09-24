@@ -6,7 +6,7 @@ import { Cart } from '../cart/cart';
 import { Product } from '../catalog/catalog';
 import { ReceiptView } from './receipt-view';
 
-const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30 };
+const APPLE: Product = { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 };
 
 const THREE_APPLES_RECEIPT = {
   lines: [{ sku: 'APPLE', name: 'Apple', quantity: 3, unitPriceCents: 30, lineTotalCents: 90 }],

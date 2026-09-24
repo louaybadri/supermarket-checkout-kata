@@ -21,8 +21,14 @@ export class Cart {
 
   readonly isEmpty = computed(() => this.contents().length === 0);
 
-  /** Adds one more of a product, or starts a line for it. */
+  /**
+   * Adds one more of a product, or starts a line for it. Nothing happens once the cart holds as
+   * many as the shop allows.
+   */
   add(product: Product): void {
+    if (!this.canAddMoreOf(product)) {
+      return;
+    }
     this.contents.update((lines) =>
       lines.some((line) => line.product.sku === product.sku)
         ? lines.map((line) =>
@@ -30,6 +36,15 @@ export class Cart {
           )
         : [...lines, { product, quantity: 1 }],
     );
+  }
+
+  /**
+   * Whether one more of this product may go in. The limit is not written here: it arrives with
+   * the product from the backend, which enforces the same number at checkout.
+   */
+  canAddMoreOf(product: Product): boolean {
+    const inCart = this.contents().find((line) => line.product.sku === product.sku)?.quantity ?? 0;
+    return inCart < product.maxQuantity;
   }
 
   /** Puts one back. The line disappears when the last one goes. */

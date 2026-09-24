@@ -7,6 +7,8 @@ export interface Product {
   sku: string;
   name: string;
   unitPriceCents: number;
+  /** The most of it one cart may hold. The backend sets it and enforces it at checkout. */
+  maxQuantity: number;
 }
 
 /** A deal running this week. `items` maps a sku to how many of it the deal needs. */

@@ -28,6 +28,7 @@
             type="button"
             class="button-quiet"
             (click)="cart.add(line.product)"
+            [disabled]="!cart.canAddMoreOf(line.product)"
             [attr.aria-label]="'One more ' + line.product.name"
           >
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
