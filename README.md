@@ -49,7 +49,8 @@ POST /api/checkout    a cart in, a receipt out
 ```
 
 Every amount is in whole cents, named `...Cents`, so no price has to survive a floating point
-number on the way to the browser.
+number on the way to the browser. Each product also carries `maxQuantity`, the most of it one line
+of a cart may ask for, so the frontend can stop there without writing the number down itself.
 
 ```bash
 curl -s -X POST localhost:8080/api/checkout -H 'Content-Type: application/json' \
@@ -67,12 +68,20 @@ curl -s -X POST localhost:8080/api/checkout -H 'Content-Type: application/json' 
 }
 ```
 
-An unknown product, or a quantity below one, comes back as a 400 saying which part is wrong:
+A cart the shop cannot price comes back as a 400 `ProblemDetail` saying which part is wrong: an
+unknown product, or a line with a quantity outside 1 to 99.
 
 ```json
 { "status": 400, "title": "Unknown product",
   "detail": "The shop does not sell 'UNICORN'", "sku": "UNICORN" }
 ```
+```json
+{ "status": 400, "title": "Invalid cart",
+  "detail": "items[0].quantity: must be less than or equal to 99" }
+```
+
+A fault on the shop's own side is a 500, never a 400: the customer is not told their cart is wrong
+for a bug that is ours.
 
 ## How it is laid out
 
@@ -87,6 +96,7 @@ frontend/src/app/
   catalog/    the shelf: the API service and the product list
   cart/       the cart as a signal, and its view
   receipt/    the checkout call and the printed bill
+  connection/ whether the shop can be reached, and the banner that says so
 ```
 
 `pricing` depends on nothing. `catalog` and `api` depend on `pricing`, never the other way round,
@@ -106,7 +116,8 @@ which is why the pricing tests need no database and no Spring context and run in
 6. Each item in the cart counts towards at most one offer. The same apple is never discounted twice.
 7. An offer that costs more than the same items at unit price, or exactly the same, is never
    applied.
-8. Unknown products, and quantities of zero or less, are rejected.
+8. Unknown products are rejected, and so is a line asking for fewer than 1 or more than 99 of a
+   product. Nobody puts a hundred of one thing through a till.
 9. "Weekly" offers are modelled as data, replaced by changing the catalog. Validity dates are
    not modelled; see "Not in scope".
 
@@ -123,9 +134,20 @@ which is why the pricing tests need no database and no Spring context and run in
   costs 1.20 greedily and 0.90 when the bundle is used three times. The search takes the offers
   one at a time and tries using each one 0, 1, 2… times, so the recursion is only as deep as the
   list of offers, however large the cart.
+- **The search does not remember solved baskets.** It did, and it was measured both ways. With
+  the offers in a fixed order a basket rarely comes round twice, so the memory only filled up:
+  3,000 apples with 3,000 bananas took 11.5 s with it and 0.24 s without. It would pay off only
+  when many offers share one product. The numbers are in `docs/review.md`, item 2.
+- **The quantity limit is written once.** `CheckoutRequest.MAX_QUANTITY` is what the checkout
+  validates against and what `GET /api/products` sends as `maxQuantity`, so the cart's buttons and
+  quantity field cannot drift from what the backend enforces.
 - **Checkout is stateless.** The frontend holds the cart and sends it to `POST /api/checkout`,
   which returns a receipt with lines, discounts and the total. There was no requirement to keep
   carts across sessions.
+- **An unreachable shop is said out loud.** When a request gets no answer, a banner says the shop
+  cannot be reached and the request is sent again every three seconds, until "Back online". A
+  checkout pressed meanwhile prints its bill once the shop answers. Nothing polls in the
+  background: the app notices on the next thing the shopper does.
 - **Products and offers live in an in-memory H2 database**, seeded at startup from
   `catalog.yml`, behind a `Catalog` interface. It needs no setup from the reviewer, and moving to
   PostgreSQL means changing configuration and migrations, not the pricing code.
@@ -144,13 +166,19 @@ which is why the pricing tests need no database and no Spring context and run in
   the commit message, so it is easy to skip.
 - I used Claude Code as a pair programmer, working against the spec in `AGENTS.md`, and I
   reviewed every commit before it went in.
+- Before sending, I reviewed the whole thing. `docs/review.md` lists ten findings, each with the
+  evidence that showed it and the fix it got, and every fix is its own commit tagged
+  "(review #N)", so the history reads build, review, fix.
 
 ## Not in scope yet
 
-- **Very large carts where many offers overlap.** Choosing the cheapest set of overlapping
-  bundles is multi-dimensional knapsack, so the search is exponential in the number of products
-  that offers touch. Products linked by an offer could be solved as independent groups, which
-  keeps the exponent at the size of the largest group rather than the whole catalog.
+- **A week with many offers.** Choosing the cheapest set of overlapping bundles is a knapsack
+  problem, and the search tries every combination of how many times each offer is used, so it is
+  exponential in the number of offers, not in the size of the cart. Offers that share no product
+  could be solved as independent groups, adding their costs instead of multiplying them, with
+  solved baskets remembered inside each group.
+- **A limit on the whole cart.** The 99 is per line, so the same product sent on several lines
+  still adds up past it. The frontend never does that, and the search copes, but the API allows it.
 - **Offers valid only for a given period** (`validFrom` / `validUntil` with an injected `Clock`).
 - **A persistent database.** PostgreSQL would replace H2 behind the same `Catalog` interface.
 - Continuous integration.
