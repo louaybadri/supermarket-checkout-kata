@@ -22,7 +22,16 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
           </button>
 
-          <span class="quantity">{{ line.quantity }}</span>
+          <input
+            class="quantity"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            [max]="line.product.maxQuantity"
+            [value]="line.quantity"
+            (change)="setQuantity(line, $event)"
+            [attr.aria-label]="'How many ' + line.product.name"
+          />
 
           <button
             type="button"

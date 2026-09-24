@@ -43,8 +43,32 @@ export class Cart {
    * the product from the backend, which enforces the same number at checkout.
    */
   canAddMoreOf(product: Product): boolean {
-    const inCart = this.contents().find((line) => line.product.sku === product.sku)?.quantity ?? 0;
-    return inCart < product.maxQuantity;
+    return this.quantityOf(product.sku) < product.maxQuantity;
+  }
+
+  /** How many of a product the cart holds, 0 if it has none. */
+  quantityOf(sku: string): number {
+    return this.contents().find((line) => line.product.sku === sku)?.quantity ?? 0;
+  }
+
+  /**
+   * Sets a line to the number the shopper typed, kept between 1 and the product's limit, so 150
+   * becomes the limit and 0 becomes 1. Taking a line out is what the minus and bin buttons are
+   * for; a line never vanishes because its field was cleared while typing.
+   *
+   * Anything that is not a whole number is ignored, and so is a product not in the cart.
+   */
+  setQuantity(sku: string, quantity: number): void {
+    if (!Number.isInteger(quantity)) {
+      return;
+    }
+    this.contents.update((lines) =>
+      lines.map((line) =>
+        line.product.sku === sku
+          ? { ...line, quantity: Math.min(Math.max(quantity, 1), line.product.maxQuantity) }
+          : line,
+      ),
+    );
   }
 
   /** Puts one back. The line disappears when the last one goes. */

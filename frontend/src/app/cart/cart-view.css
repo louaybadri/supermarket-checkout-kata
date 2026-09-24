@@ -61,9 +61,31 @@
 }
 
 .quantity {
-  min-width: 1.5rem;
+  width: 3rem;
+  height: 1.75rem;
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--neutral-300);
+  border-radius: 6px;
+  font: inherit;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  color: inherit;
+  background: #fff;
+  /* The minus and plus buttons already step the number, so the browser's own arrows go. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.quantity::-webkit-inner-spin-button,
+.quantity::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity:focus-visible {
+  outline: 2px solid var(--brand-400);
+  outline-offset: 1px;
+  border-color: var(--brand-400);
 }
 
 .remove {

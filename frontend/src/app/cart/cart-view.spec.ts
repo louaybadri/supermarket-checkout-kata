@@ -23,6 +23,17 @@ describe('CartView', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
+  function quantityField(): HTMLInputElement {
+    return page().querySelector<HTMLInputElement>('input.quantity')!;
+  }
+
+  /** What a shopper does: type a number, then press Enter or leave the field. */
+  function type(value: string): void {
+    quantityField().value = value;
+    quantityField().dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+  }
+
   it('says the cart is empty before anything is picked up', () => {
     expect(page().textContent).toContain('Nothing in it yet.');
   });
@@ -33,7 +44,7 @@ describe('CartView', () => {
     fixture.detectChanges();
 
     expect(page().querySelector('.name')?.textContent).toContain('Apple');
-    expect(page().querySelector('.quantity')?.textContent?.trim()).toBe('2');
+    expect(quantityField().value).toBe('2');
     expect(page().querySelector('.count')?.textContent?.trim()).toBe('2');
   });
 
@@ -45,7 +56,35 @@ describe('CartView', () => {
     page().querySelector<HTMLButtonElement>('[aria-label="One less Apple"]')!.click();
     fixture.detectChanges();
 
-    expect(page().querySelector('.quantity')?.textContent?.trim()).toBe('1');
+    expect(quantityField().value).toBe('1');
+  });
+
+  it('takes a quantity typed into the field', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+
+    type('2');
+
+    expect(cart.quantityOf('APPLE')).toBe(2);
+    expect(quantityField().value).toBe('2');
+  });
+
+  it('shows the limit when more than the shop allows is typed', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+
+    type('150');
+
+    expect(quantityField().value).toBe('2');
+  });
+
+  it('puts the quantity back when the field is cleared', () => {
+    cart.add(APPLE);
+    fixture.detectChanges();
+
+    type('');
+
+    expect(quantityField().value).toBe('1');
   });
 
   it('turns the plus button off at the most the shop allows', () => {

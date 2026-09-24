@@ -86,6 +86,51 @@ describe('Cart', () => {
     expect(cart.canAddMoreOf(CHEESE)).toBe(true);
   });
 
+  it('sets a line to the quantity typed', () => {
+    cart.add(APPLE);
+
+    cart.setQuantity('APPLE', 12);
+
+    expect(cart.quantityOf('APPLE')).toBe(12);
+  });
+
+  it('never goes past the limit when a number is typed', () => {
+    cart.add(CHEESE);
+
+    cart.setQuantity('CHEESE', 150);
+
+    expect(cart.quantityOf('CHEESE')).toBe(2);
+  });
+
+  it('keeps at least one when zero or less is typed', () => {
+    cart.add(APPLE);
+    cart.add(APPLE);
+
+    cart.setQuantity('APPLE', 0);
+    expect(cart.quantityOf('APPLE')).toBe(1);
+
+    cart.setQuantity('APPLE', -3);
+    expect(cart.quantityOf('APPLE')).toBe(1);
+  });
+
+  it('ignores something that is not a whole number', () => {
+    cart.add(APPLE);
+    cart.add(APPLE);
+
+    cart.setQuantity('APPLE', Number.NaN);
+    cart.setQuantity('APPLE', 2.5);
+
+    expect(cart.quantityOf('APPLE')).toBe(2);
+  });
+
+  it('leaves a product that is not in the cart alone', () => {
+    cart.add(APPLE);
+
+    cart.setQuantity('BANANA', 3);
+
+    expect(cart.lines()).toEqual([{ product: APPLE, quantity: 1 }]);
+  });
+
   it('hands the checkout a sku and a quantity per line', () => {
     cart.add(APPLE);
     cart.add(APPLE);
