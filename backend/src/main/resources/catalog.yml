@@ -9,20 +9,30 @@ catalog:
   active-preset: classic
 
   products:
-    - { sku: APPLE,  name: Apple,  unit-price-cents: 30 }
-    - { sku: BANANA, name: Banana, unit-price-cents: 20 }
-    - { sku: BREAD,  name: Bread,  unit-price-cents: 110 }
-    - { sku: MILK,   name: Milk,   unit-price-cents: 90 }
-    - { sku: CHEESE, name: Cheese, unit-price-cents: 250 }
+    - { sku: APPLE,     name: Apple,     unit-price-cents: 30 }
+    - { sku: BANANA,    name: Banana,    unit-price-cents: 20 }
+    - { sku: BREAD,     name: Bread,     unit-price-cents: 110 }
+    - { sku: MILK,      name: Milk,      unit-price-cents: 90 }
+    - { sku: CHEESE,    name: Cheese,    unit-price-cents: 250 }
+    - { sku: ORANGE,    name: Orange,    unit-price-cents: 40 }
+    - { sku: PEAR,      name: Pear,      unit-price-cents: 35 }
+    - { sku: EGG,       name: Egg,       unit-price-cents: 25 }
+    - { sku: BUTTER,    name: Butter,    unit-price-cents: 190 }
+    - { sku: COFFEE,    name: Coffee,    unit-price-cents: 180 }
+    - { sku: CROISSANT, name: Croissant, unit-price-cents: 120 }
+    - { sku: YOGHURT,   name: Yoghurt,   unit-price-cents: 70 }
 
   presets:
-    # The example from the exercise.
+    # The example from the exercise: 3 apples cost 0.45 + 0.30 = 0.75.
+    #   ./gradlew bootRun
     classic:
       - name: "2 apples for 0.45"
         price-cents: 45
         items: { APPLE: 2 }
 
     # Offers that span products, plus one that competes with them for the same apples.
+    # 4 apples and a banana: 3 apples for 0.60 plus the bundle for 0.40 = 1.00.
+    #   ./gradlew bootRun --args='--catalog.active-preset=bundle-week'
     bundle-week:
       - name: "Apple & banana for 0.40"
         price-cents: 40
@@ -34,5 +44,89 @@ catalog:
         price-cents: 180
         items: { BREAD: 1, MILK: 1 }
 
+    # Five offers fighting over apples, bananas and oranges. The trio saves the most on its own,
+    # which is exactly why taking the biggest saving first goes wrong:
+    #   1 apple, 1 banana, 2 oranges: the trio leaves an orange, 1.00; apple & banana plus
+    #   2 oranges, 0.85.
+    #   3 of each: 1.75, using the trio, apple & banana twice and 2 oranges.
+    #   ./gradlew bootRun --args='--catalog.active-preset=fruit-war'
+    fruit-war:
+      - name: "Apple, banana & orange for 0.60"
+        price-cents: 60
+        items: { APPLE: 1, BANANA: 1, ORANGE: 1 }
+      - name: "Apple & banana for 0.30"
+        price-cents: 30
+        items: { APPLE: 1, BANANA: 1 }
+      - name: "2 oranges for 0.55"
+        price-cents: 55
+        items: { ORANGE: 2 }
+      - name: "3 apples for 0.70"
+        price-cents: 70
+        items: { APPLE: 3 }
+      - name: "2 bananas for 0.30"
+        price-cents: 30
+        items: { BANANA: 2 }
+
+    # Meal deals across several products, and two deals wanting the same coffee.
+    #   3 coffees, a croissant, 6 eggs, butter and bread: shelf 11.10; the breakfast box,
+    #   coffee & croissant and 2 coffees bring it to 8.80.
+    #   ./gradlew bootRun --args='--catalog.active-preset=breakfast'
+    breakfast:
+      - name: "Breakfast box for 3.40"
+        price-cents: 340
+        items: { EGG: 6, BUTTER: 1, BREAD: 1 }
+      - name: "Coffee & croissant for 2.40"
+        price-cents: 240
+        items: { COFFEE: 1, CROISSANT: 1 }
+      - name: "2 coffees for 3.00"
+        price-cents: 300
+        items: { COFFEE: 2 }
+      - name: "Croissant & butter for 2.40"
+        price-cents: 240
+        items: { CROISSANT: 1, BUTTER: 1 }
+      - name: "6 eggs for 1.20"
+        price-cents: 120
+        items: { EGG: 6 }
+
+    # Two offers that are not deals at all, which the checkout must ignore: one dearer than the
+    # shelf price, one exactly the same. Only the yoghurts get a discount.
+    #   2 pears and 3 yoghurts: 0.70 + 1.80 = 2.50.
+    #   ./gradlew bootRun --args='--catalog.active-preset=not-a-deal'
+    not-a-deal:
+      - name: "2 pears for 0.80"
+        price-cents: 80
+        items: { PEAR: 2 }
+      - name: "Yoghurt & pear for 1.05"
+        price-cents: 105
+        items: { YOGHURT: 1, PEAR: 1 }
+      - name: "3 yoghurts for 1.80"
+        price-cents: 180
+        items: { YOGHURT: 3 }
+
+    # Six deals on apples alone, the slowest kind of week for the search. The biggest single
+    # saving is again the wrong start:
+    #   12 apples: 10 for 2.60 leaves 2 for 0.55, 3.15; four lots of 3, or two of 6, 3.00.
+    #   ./gradlew bootRun --args='--catalog.active-preset=crowded'
+    crowded:
+      - name: "2 apples for 0.55"
+        price-cents: 55
+        items: { APPLE: 2 }
+      - name: "3 apples for 0.75"
+        price-cents: 75
+        items: { APPLE: 3 }
+      - name: "4 apples for 1.05"
+        price-cents: 105
+        items: { APPLE: 4 }
+      - name: "5 apples for 1.30"
+        price-cents: 130
+        items: { APPLE: 5 }
+      - name: "6 apples for 1.50"
+        price-cents: 150
+        items: { APPLE: 6 }
+      - name: "10 apples for 2.60"
+        price-cents: 260
+        items: { APPLE: 10 }
+
     # No deals at all, to see the plain shelf prices.
+    #   ./gradlew bootRun --args='--catalog.active-preset=none'
     none: []

@@ -37,6 +37,9 @@ class CatalogSeedingTest {
 			.contains(new Product("APPLE", "Apple", Money.ofCents(30)));
 		assertThat(catalog.findBySku("CHEESE"))
 			.contains(new Product("CHEESE", "Cheese", Money.ofCents(250)));
+		assertThat(catalog.findBySku("CROISSANT"))
+			.contains(new Product("CROISSANT", "Croissant", Money.ofCents(120)));
+		assertThat(catalog.products()).hasSize(12);
 	}
 
 	@Test

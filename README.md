@@ -37,8 +37,18 @@ the offers come in named sets, and you pick which week is running without touchi
 cd backend && ./gradlew bootRun --args='--catalog.active-preset=bundle-week'
 ```
 
-`classic` is the exercise's own example, `bundle-week` has offers that span products and compete
-for the same apples, and `none` turns every deal off.
+| Preset | What it shows |
+|---|---|
+| `classic` (default) | The exercise's own example: 2 apples for 0.45 |
+| `bundle-week` | Offers that span products, and one that competes with them for the same apples |
+| `fruit-war` | Five offers over apples, bananas and oranges, where taking the biggest saving first is wrong |
+| `breakfast` | Meal deals across several products, with two deals wanting the same coffee |
+| `not-a-deal` | Two "offers" dearer than, or equal to, the shelf price, which are never applied |
+| `crowded` | Six deals on apples alone, the slowest kind of week for the search |
+| `none` | No deals, only shelf prices |
+
+Each preset in `catalog.yml` has its run command and a worked cart in the comment above it, and
+`OfferWeeksTest` checks that every worked cart prices the way the comment says.
 
 ## The API
 
