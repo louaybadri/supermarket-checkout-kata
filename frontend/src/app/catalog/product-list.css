@@ -18,7 +18,8 @@
   border-top: none;
 }
 
-.initial {
+/* The product's picture, or its first letter when it has none. */
+.avatar {
   display: grid;
   place-items: center;
   width: 2.25rem;
@@ -28,6 +29,8 @@
   background: var(--brand-100);
   color: var(--brand-600);
   font-weight: var(--weight-head);
+  font-size: 1.15rem;
+  line-height: 1;
 }
 
 .details {

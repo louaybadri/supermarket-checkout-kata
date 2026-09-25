@@ -4,7 +4,7 @@
   @if (products(); as shelf) {
     @for (product of shelf; track product.sku) {
       <article class="product">
-        <span class="initial" aria-hidden="true">{{ product.name.charAt(0) }}</span>
+        <span class="avatar" aria-hidden="true">{{ iconFor(product) }}</span>
 
         <span class="details">
           <span class="name">{{ product.name }}</span>

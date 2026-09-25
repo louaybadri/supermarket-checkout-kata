@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Cart } from '../cart/cart';
 import { ShopConnection } from '../connection/shop-connection';
 import { Catalog, Offer, Product } from './catalog';
+import { iconFor } from './product-icons';
 
 /** The shelf: what is for sale, and which deals mention each product. */
 @Component({
@@ -19,6 +20,8 @@ export class ProductList {
   protected readonly cart = inject(Cart);
 
   private readonly connection = inject(ShopConnection);
+
+  protected readonly iconFor = iconFor;
 
   /**
    * What the shop sells, or undefined until the shop has answered. Undefined is what lets the

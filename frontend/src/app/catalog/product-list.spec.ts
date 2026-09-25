@@ -97,6 +97,23 @@ describe('ProductList', () => {
     vi.useRealTimers();
   });
 
+  it("shows each product's icon, or its first letter when it has none", () => {
+    answerWith(
+      [
+        { sku: 'APPLE', name: 'Apple', unitPriceCents: 30, maxQuantity: 99 },
+        { sku: 'KIWI', name: 'Kiwi', unitPriceCents: 45, maxQuantity: 99 },
+      ],
+      [],
+    );
+
+    const page = fixture.nativeElement as HTMLElement;
+    const icons = Array.from(page.querySelectorAll('.avatar')).map((node) =>
+      node.textContent?.trim(),
+    );
+
+    expect(icons).toEqual(['🍎', 'K']);
+  });
+
   it('says so when the shop is empty', () => {
     answerWith([], []);
 
