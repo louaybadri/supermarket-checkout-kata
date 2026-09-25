@@ -65,6 +65,14 @@ class OfferWeeksTest {
 				.containsExactlyInAnyOrder(tuple("Apple, banana & orange for 0.60", 1),
 						tuple("Apple & banana for 0.30", 2), tuple("2 oranges for 0.55", 1));
 		}
+
+		@Test
+		void pricesTheMostOfEachFruitACartMayHold() {
+			// The cart that took 16 seconds before the search reused its answers (review #12).
+			// The same total either way; now in a fraction of a second.
+			assertThat(checkout.total(cart("APPLE", 99, "BANANA", 99, "ORANGE", 99)))
+				.isEqualTo(Money.ofCents(5695));
+		}
 	}
 
 	@Nested

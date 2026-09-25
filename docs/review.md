@@ -19,6 +19,7 @@ own commit, with its test, and the commit message names the item, for example
 | 9 | UI | Money is formatted two different ways | fixed |
 | 10 | UI | An unreachable backend looks like an empty or broken shop | fixed |
 | 11 | API | The same product on several lines gets past the 99 limit | fixed |
+| 12 | Pricing | The search re-solves the same situation once per route | fixed |
 
 The evidence below was gathered with the `bundle-week` preset:
 
@@ -115,7 +116,8 @@ The old search remembered every basket it had solved. With the offers in a fixed
 every basket is reached once, so the memory only filled up: 3,000 apples with 3,000 bananas took
 11.5 s in memory with it and 0.24 s without it. It was dropped. Remembering would win back time
 only when several offers need the same product (six apple deals and 99 apples: 11 ms with it,
-155 ms without), which is still fast.
+155 ms without), which is still fast. #12 brings it back, filed under a smaller label that
+does match.
 
 **Test.** 200,000 apples cost exactly 45,000.00. The competing-offers test (3 apples and 3
 bananas cost 0.90, not the 1.20 a greedy pick gives) stays green, which shows the search still
@@ -450,3 +452,53 @@ one apple after another; the rule belongs to the API's contract, not to pricing.
 **Test.** `@WebMvcTest`: two lines of apples with a banana between them is a 400 naming `APPLE`.
 
 - [x] Fixed in: "Take each product on one line only (review #11)"
+
+---
+
+## 12. The search re-solves the same situation once per route
+
+Found by trying the fruit-war week added after #11 with a full cart.
+
+**Problem.** After #2 the search walks every combination of how many times each offer is used,
+and it no longer remembered anything. When several offers compete for the same products, many
+different routes reach the same situation, and each one worked it out again. fruit-war has five
+offers over apples, bananas and oranges; routes that differ only in how many oranges went into
+"2 oranges" still ask exactly the same question about apples and bananas afterwards.
+
+**Evidence.** fruit-war with 99 of everything on the shelf took **16 s** in memory and about **43 s**
+through the browser. Counted, the search walks about 60 million routes to the bottom, but there
+are only about 5,000 different situations among them.
+
+**Fix.** Remember each answer, filed under the right label. The memo that #2 dropped keyed on the
+whole basket, so leftovers that no longer mattered made every label different and nothing was
+reused. Now:
+
+- For each offer, the search knows which products that offer or a later one can still use.
+- Whatever no later offer can use is paid at shelf price as soon as that is true, and leaves the
+  basket.
+- An answer is filed under the offer index and what is left of the products that still matter,
+  e.g. `(4, {BANANA=37})`: routes that differ only in oranges now share one entry.
+
+| Cart | Before | After |
+|---|---|---|
+| fruit-war, 99 of everything | 16 s | 0.18 s |
+| fruit-war, 99 of each fruit | 7.6 s | 0.2 s |
+| bundle-week, 100 of four products | 0.10 s | 0.003 s |
+| crowded, 99 apples | 0.155 s | 0.002 s |
+| bundle-week, 3,000 apples and 3,000 bananas | 0.24 s | 0.40 s |
+
+The last row was the memo's bad case in #2. With the smaller label it stays fast, and the API no
+longer lets a cart get that large (#5, #11). The answers do not change: every existing test passes,
+including every worked cart, whose totals come from trying every combination outside this code.
+
+**Test.** Like #1, the test counts work rather than timing it. The search asks for a price at the
+end of every route, so a catalog that counts lookups, handed straight to `BestPrice`, counts the
+routes. fruit-war with 20 of each fruit: the old search asks **89,972** times, the new one **1,790**;
+the test allows 5,000, so it fails on the old search and passes on the new. `OfferWeeksTest` also
+prices 99 of each fruit, €56.95 on both searches.
+
+The search is still exponential in the worst case: products chained together by many offers still
+multiply the situations. Splitting offers that share no product into independent groups would be
+the next step.
+
+- [x] Fixed in: "Answer each situation in the search once (review #12)"

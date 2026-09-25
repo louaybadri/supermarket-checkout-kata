@@ -145,10 +145,13 @@ which is why the pricing tests need no database and no Spring context and run in
   costs 1.20 greedily and 0.90 when the bundle is used three times. The search takes the offers
   one at a time and tries using each one 0, 1, 2… times, so the recursion is only as deep as the
   list of offers, however large the cart.
-- **The search does not remember solved baskets.** It did, and it was measured both ways. With
-  the offers in a fixed order a basket rarely comes round twice, so the memory only filled up:
-  3,000 apples with 3,000 bananas took 11.5 s with it and 0.24 s without. It would pay off only
-  when many offers share one product. The numbers are in `docs/review.md`, item 2.
+- **The search remembers each situation it has solved, under the right label.** Many routes
+  through the offers reach the same situation, so each answer is kept and reused. It is filed
+  under the next offer to decide and what is left of the products that offer or a later one can
+  use; anything no later offer can use is paid at shelf price straight away. Filed under the whole
+  basket, as a first attempt was, almost nothing matched and the memory only filled up. With the
+  right label, fruit-war with 99 of everything went from 16 s to 0.18 s. The story is in
+  `docs/review.md`, items 2 and 12.
 - **The quantity limit is written once.** `CheckoutRequest.MAX_QUANTITY` is what the checkout
   validates against and what `GET /api/products` sends as `maxQuantity`, so the cart's buttons and
   quantity field cannot drift from what the backend enforces.
@@ -177,7 +180,7 @@ which is why the pricing tests need no database and no Spring context and run in
   the commit message, so it is easy to skip.
 - I used Claude Code as a pair programmer, working against the spec in `AGENTS.md`, and I
   reviewed every commit before it went in.
-- Before sending, I reviewed the whole thing. `docs/review.md` lists eleven findings, each with the
+- Before sending, I reviewed the whole thing. `docs/review.md` lists twelve findings, each with the
   evidence that showed it and the fix it got, and every fix is its own commit tagged
   "(review #N)", so the history reads build, review, fix.
 
@@ -185,9 +188,10 @@ which is why the pricing tests need no database and no Spring context and run in
 
 - **A week with many offers.** Choosing the cheapest set of overlapping bundles is a knapsack
   problem, and the search tries every combination of how many times each offer is used, so it is
-  exponential in the number of offers, not in the size of the cart. Offers that share no product
-  could be solved as independent groups, adding their costs instead of multiplying them, with
-  solved baskets remembered inside each group.
+  exponential in the number of offers, not in the size of the cart. Remembering solved situations
+  keeps a week like fruit-war fast, but many products chained together by offers would still
+  multiply the situations. Offers that share no product could be solved as independent groups,
+  adding their costs instead of multiplying them.
 - **Offers valid only for a given period** (`validFrom` / `validUntil` with an injected `Clock`).
 - **A persistent database.** PostgreSQL would replace H2 behind the same `Catalog` interface.
 - Continuous integration.
