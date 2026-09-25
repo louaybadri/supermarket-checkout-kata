@@ -3,6 +3,13 @@
 A simplified supermarket checkout with offers, built with a Java / Spring Boot backend
 and an Angular / TypeScript frontend.
 
+![The shelf with this week's offers, and a cart holding 3 apples, 3 bananas and 3 oranges](docs/screenshots/shop.png)
+
+![The receipt for that cart: three offers applied, 1.75 instead of 2.70](docs/screenshots/receipt.png)
+
+The `fruit-war` week, where five offers compete for the same fruit. Taking the biggest saving
+first would charge 1.80; the checkout finds 1.75.
+
 ## The task
 
 > Implement a simplified supermarket checkout system. The cart can contain any number and
